@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('currencies', function (Blueprint $table) {
             $table->id();
+            $table->json('name');
+            $table->string('code', 3)->unique();
+            $table->string('symbol');
+            $table->decimal('exchange_rate', 15, 8)->default(1)->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

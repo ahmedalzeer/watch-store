@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Store extends Model implements HasMedia
 {
@@ -22,7 +24,7 @@ class Store extends Model implements HasMedia
         'description',
         'contact_email',
         'phone',
-        'currency',
+        'currency_id',
         'social_links',
         'is_active'
     ];
@@ -36,9 +38,25 @@ class Store extends Model implements HasMedia
         'logo_url',
     ];
 
-    public function user()
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
+
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 
     public function registerMediaCollections(): void

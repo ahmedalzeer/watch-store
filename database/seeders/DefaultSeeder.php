@@ -14,14 +14,10 @@ class DefaultSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. إنشاء الأدوار أولاً في جدول roles
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $vendorRole = Role::firstOrCreate(['name' => 'vendor']);
         $customerRole = Role::firstOrCreate(['name' => 'customer']);
 
-        // 2. إنشاء المستخدمين وتعيين الأدوار لهم
-
-        // مسؤول النظام (Admin)
         $admin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
             [
@@ -33,28 +29,35 @@ class DefaultSeeder extends Seeder
         );
         $admin->assignRole($adminRole);
 
-        // بائع (Vendor)
-        $vendor = User::updateOrCreate(
-            ['email' => 'vendor@admin.com'],
-            [
-                'name'     => 'Sample Vendor',
-                'phone'    => '01000000002',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $vendor->assignRole($vendorRole);
+        for ($i = 1; $i <= 10; $i++) {
+            $vendor = User::updateOrCreate(
+                ['email' => "vendor{$i}@admin.com"],
+                [
+                    'name'     => "Sample Vendor {$i}",
+                    'phone'    => '010000000' . (10 + $i),
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
+            $vendor->assignRole($vendorRole);
+        }
 
-        // عميل (Customer)
-        $customer = User::updateOrCreate(
-            ['email' => 'customer@admin.com'],
-            [
-                'name'     => 'Standard Customer',
-                'phone'    => '01000000003',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $customer->assignRole($customerRole);
+        for ($i = 1; $i <= 10; $i++) {
+            $customer = User::updateOrCreate(
+                ['email' => "customer{$i}@admin.com"],
+                [
+                    'name'     => "Sample Customer {$i}",
+                    'phone'    => '010000000' . (20 + $i),
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
+            $customer->assignRole($customerRole);
+        }
+        
+        $this->call([
+            CurrencySeeder::class,
+            StoreSeeder::class,
+        ]);
     }
 }

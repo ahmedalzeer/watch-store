@@ -12,6 +12,8 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Traits\CreateAtHuman;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements HasMedia
 {
@@ -59,9 +61,10 @@ class User extends Authenticatable implements HasMedia
         ];
     }
 
-    public function store()
+
+    public function stores(): HasMany
     {
-        return $this->hasOne(Store::class);
+        return $this->hasMany(Store::class);
     }
 
     public function registerMediaCollections(): void

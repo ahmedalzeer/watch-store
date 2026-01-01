@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('contact_email')->nullable();
             $table->string('phone')->nullable();
             $table->json('social_links')->nullable();
-            $table->string('currency')->default('USD');
+            $table->foreignId('currency_id')->constrained('currencies')->onDelete('restrict');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
