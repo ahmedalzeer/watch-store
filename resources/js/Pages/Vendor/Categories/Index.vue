@@ -97,14 +97,14 @@
             </div>
         </div>
 
-        <CategoryModal :show="showingModal" :parent-categories="parentCategories" :edit-category="selectedCategory"
-            :store-id="storeId" @close="showingModal = false" @refresh="onRefresh" />
+        <CategoryModal :show="showingModal" :parent-categories="filteredParentCategories"
+            :edit-category="selectedCategory" :store-id="storeId" @close="showingModal = false" @refresh="onRefresh" />
         <CategoryShow :show="showingShowModal" :category="selectedCategoryToShow" @close="showingShowModal = false" />
     </VendorLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import VendorLayout from '@/Layouts/VendorLayout.vue'; // تأكد من استخدام Layout التاجر
 import CategoryModal from './CategoryModal.vue';
@@ -127,6 +127,11 @@ const showCategory = (category) => {
     selectedCategoryToShow.value = category;
     showingShowModal.value = true;
 };
+
+const filteredParentCategories = computed(() => {
+    if (!selectedCategory.value) return props.parentCategories;
+    return props.parentCategories.filter(cat => cat.id !== selectedCategory.value.id);
+});
 
 const openModal = () => {
     selectedCategory.value = null;

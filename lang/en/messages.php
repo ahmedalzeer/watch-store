@@ -151,4 +151,6 @@ return [
     'select_parent_category' => 'Select Parent Category',
     'optional' => 'Optional',
     'current_store' => 'Current Store',
+    'category_icon' => 'Category Icon',
+    'cannot_be_parent_to_self' => 'A category cannot be its own parent.',
 ];

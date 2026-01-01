@@ -23,7 +23,7 @@ class CategoryController extends VendorBaseController
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name->ar', 'like', "%{$search}%")
-                      ->orWhere('name->en', 'like', "%{$search}%");
+                        ->orWhere('name->en', 'like', "%{$search}%");
                 });
             })
             ->latest()
@@ -54,7 +54,13 @@ class CategoryController extends VendorBaseController
             abort(403);
         }
 
-        $category->update($request->validated());
+        $data = $request->validated();
+
+        if (isset($data['parent_id']) && $data['parent_id'] == $category->id) {
+            return redirect()->back()->withErrors(['parent_id' => __('messages.cannot_be_parent_to_self')]);
+        }
+
+        $category->update($data);
 
         if ($request->filled('image_path')) {
             $category->clearMediaCollection('category_icons');

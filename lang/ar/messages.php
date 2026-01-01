@@ -152,4 +152,6 @@ return [
     'select_parent_category' => 'اختر الفئة الأصلية',
     'optional' => 'اختياري',
     'current_store' => 'المتجر الحالي',
+    'category_icon' => 'أيقونة الفئة',
+    'cannot_be_parent_to_self' => 'لا يمكن أن تكون الفئة اب لنفسها.',
 ];
