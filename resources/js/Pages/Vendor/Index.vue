@@ -1,5 +1,5 @@
 <script setup>
-import AdminLayout from '@/Layouts/AdminLayout.vue';
+import VendorLayout from '@/Layouts/VendorLayout.vue';
 import { Head } from '@inertiajs/vue3';
 </script>
 
@@ -7,7 +7,7 @@ import { Head } from '@inertiajs/vue3';
 
     <Head title="Vendor Dashboard" />
 
-    <AdminLayout>
+    <VendorLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 Vendor Dashboard
@@ -23,5 +23,5 @@ import { Head } from '@inertiajs/vue3';
                 </div>
             </div>
         </div>
-    </AdminLayout>
+    </VendorLayout>
 </template>

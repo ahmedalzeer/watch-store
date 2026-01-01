@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\MediaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Vendor\DashboardController;
 use App\Http\Controllers\Vendor\CategoryController;
@@ -18,4 +19,6 @@ Route::middleware(['auth', 'role:vendor'])->prefix('vendor')->name('vendor.')->g
     Route::resource('orders', OrderController::class);
 
     Route::get('settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
+
+    Route::post('media/upload/temp', [MediaController::class, 'uploadTemp'])->name('media.upload.temp');
 });

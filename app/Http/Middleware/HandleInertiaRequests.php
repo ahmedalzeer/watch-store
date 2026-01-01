@@ -32,7 +32,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? $request->user()->load('stores') : null,
                 // Logic: Check if the user has the 'admin' role
                 'is_admin' => $request->user() ? $request->user()->hasRole('admin') : false,
                 'permissions' => $request->user() ? $request->user()->getAllPermissions()->pluck('name') : [],
