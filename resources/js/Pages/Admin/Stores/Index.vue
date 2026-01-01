@@ -108,8 +108,8 @@
             </div>
         </div>
 
-        <StoreModal :show="showingModal" :users="users" :edit-store="selectedStore" @close="showingModal = false"
-            @refresh="onRefresh" />
+        <StoreModal :show="showingModal" :users="users" :currencies="currencies" :edit-store="selectedStore"
+            @close="showingModal = false" @refresh="onRefresh" />
         <StoreShow :show="showingShowModal" :store="selectedStoreToShow" @close="showingShowModal = false" />
     </AdminLayout>
 </template>
@@ -123,7 +123,12 @@ import { debounce } from 'lodash';
 import StoreShow from './StoreShow.vue';
 import { useAlert } from '@/useAlert';
 
-const props = defineProps({ stores: Object, users: Array });
+const props = defineProps({
+    stores: Object,
+    users: Array,
+    currencies: Array
+});
+
 const { success, confirmDelete } = useAlert();
 
 const showingShowModal = ref(false);

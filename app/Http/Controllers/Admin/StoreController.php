@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\AdminBaseController;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\Currency;
 use App\Http\Requests\Admin\StoreRequest;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class StoreController extends AdminBaseController
 {
     public function index(Request $request)
     {
-        $stores = Store::with('user')
+        $stores = Store::with(['user', 'currency'])
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name->ar', 'like', "%{$search}%")
@@ -28,7 +29,8 @@ class StoreController extends AdminBaseController
 
         return Inertia::render('Admin/Stores/Index', [
             'stores' => $stores,
-            'users' => User::role('vendor')->get(['id', 'name', 'email'])
+            'users' => User::role('vendor')->get(['id', 'name', 'email']),
+            'currencies' => Currency::where('is_active', true)->get(['id', 'name', 'symbol', 'code'])
         ]);
     }
 
@@ -55,6 +57,7 @@ class StoreController extends AdminBaseController
         $store->update($data);
 
         if ($request->logo_path && Storage::disk('public')->exists($request->logo_path)) {
+            $store->clearMediaCollection('store_logo');
             $store->addMedia(storage_path('app/public/' . $request->logo_path))
                 ->toMediaCollection('store_logo');
         }

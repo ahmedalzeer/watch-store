@@ -31,7 +31,7 @@ class StoreRequest extends FormRequest
             ],
             'contact_email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'currency' => 'required|string|max:3',
+            'currency_id' => 'required|exists:currencies,id',
             'theme_color' => 'nullable|string|max:7',
             'is_active' => 'boolean',
             'description.ar' => 'nullable|string',

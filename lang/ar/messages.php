@@ -105,4 +105,13 @@ return [
     'edit_existing_store' => 'تعديل متجر موجود',
     'social_media' => 'الوسائط الاجتماعية',
     'store_created' => 'تم إنشاء المتجر بنجاح',
+    'choose_currency' => 'اختر العملة',
+    'currency_symbol' => 'رمز العملة',
+    'currency_name' => 'اسم العملة',
+    'currency_code' => 'رمز العملة',
+    'currency_id' => 'معرف العملة',
+    'currency_rate' => 'سعر العملة',
+    'currency_updated' => 'تم تحديث العملة بنجاح',
+    'currency_deleted' => 'تم حذف العملة بنجاح',
+    'currencies_management' => 'إدارة العملات',
 ];

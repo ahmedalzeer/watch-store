@@ -104,6 +104,14 @@ return [
     'description' => 'Description',
     'social_media' => 'Social Media',
     'store_created' => 'Store created successfully',
-
+    'choose_currency' => 'Choose Currency',
+    'currency_symbol' => 'Currency Symbol',
+    'currency_name' => 'Currency Name',
+    'currency_code' => 'Currency Code',
+    'currency_id' => 'Currency ID',
+    'currency_rate' => 'Currency Rate',
+    'currency_updated' => 'Currency updated successfully',
+    'currency_deleted' => 'Currency deleted successfully',
+    'currencies_management' => 'Currencies Management',
 
 ];

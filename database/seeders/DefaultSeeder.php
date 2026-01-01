@@ -19,11 +19,11 @@ class DefaultSeeder extends Seeder
         $customerRole = Role::firstOrCreate(['name' => 'customer']);
 
         $admin = User::updateOrCreate(
-            ['email' => 'admin@admin.com'],
+            ['email' => 'ahmedalzeer@admin.com'],
             [
                 'name'     => 'System Admin',
-                'phone'    => '01000000001',
-                'password' => Hash::make('password'),
+                'phone'    => '01015258850',
+                'password' => Hash::make('01015258850'),
                 'email_verified_at' => now(),
             ]
         );
@@ -35,7 +35,7 @@ class DefaultSeeder extends Seeder
                 [
                     'name'     => "Sample Vendor {$i}",
                     'phone'    => '010000000' . (10 + $i),
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('01015258850'),
                     'email_verified_at' => now(),
                 ]
             );
@@ -48,13 +48,13 @@ class DefaultSeeder extends Seeder
                 [
                     'name'     => "Sample Customer {$i}",
                     'phone'    => '010000000' . (20 + $i),
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('01015258850'),
                     'email_verified_at' => now(),
                 ]
             );
             $customer->assignRole($customerRole);
         }
-        
+
         $this->call([
             CurrencySeeder::class,
             StoreSeeder::class,

@@ -37,7 +37,7 @@
                     </span>
                     <span
                         class="px-3 py-1 text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded-full">
-                        {{ store?.currency }}
+                        {{ store?.currency?.symbol }} - {{ store?.currency?.code }}
                     </span>
                 </div>
             </div>

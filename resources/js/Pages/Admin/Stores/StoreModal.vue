@@ -82,12 +82,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.currency') }}</label>
-                        <select v-model="form.currency" class="form-input">
-                            <option value="USD">USD</option>
-                            <option value="SAR">SAR</option>
-                            <option value="EGP">EGP</option>
+                        <select v-model="form.currency_id" class="form-input">
+                            <option value="">{{ $t('messages.choose_currency') }}</option>
+                            <option v-for="curr in currencies" :key="curr.id" :value="curr.id">
+                                {{ curr.name?.[$page.props.locale] || curr.name?.ar }} ({{ curr.symbol }})
+                            </option>
                         </select>
-                        <div v-if="form.errors.currency" class="error-msg">{{ form.errors.currency }}</div>
+                        <div v-if="form.errors.currency_id" class="error-msg">{{ form.errors.currency_id }}</div>
                     </div>
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.theme_color') }}</label>
@@ -153,7 +154,7 @@ import { watch, computed } from 'vue';
 import Modal from '@/Components/Modal.vue';
 import Dropzone from '@/Components/Dropzone.vue';
 
-const props = defineProps({ show: Boolean, users: Array, editStore: Object });
+const props = defineProps({ show: Boolean, users: Array, currencies: Array, editStore: Object });
 const emit = defineEmits(['close', 'refresh']);
 const isEdit = computed(() => !!props.editStore);
 
@@ -164,7 +165,7 @@ const form = useForm({
     subdomain: '',
     contact_email: '',
     phone: '',
-    currency: 'SAR',
+    currency_id: '',
     theme_color: '#7e3af2',
     social_links: { facebook: '', instagram: '', twitter: '' },
     logo_path: '',
@@ -179,7 +180,7 @@ watch(() => props.show, (val) => {
         form.subdomain = props.editStore.subdomain;
         form.contact_email = props.editStore.contact_email || '';
         form.phone = props.editStore.phone || '';
-        form.currency = props.editStore.currency || 'SAR';
+        form.currency_id = props.editStore.currency_id || '';
         form.theme_color = props.editStore.theme_color || '#7e3af2';
         form.social_links = props.editStore.social_links || { facebook: '', instagram: '', twitter: '' };
         form.is_active = !!props.editStore.is_active;
