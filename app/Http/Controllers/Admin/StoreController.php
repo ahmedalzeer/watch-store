@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AdminBaseController;
 use App\Models\Store;
 use App\Models\User;
 use App\Http\Requests\Admin\StoreRequest;
@@ -10,7 +10,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class StoreController extends Controller
+class StoreController extends AdminBaseController
 {
     public function index(Request $request)
     {

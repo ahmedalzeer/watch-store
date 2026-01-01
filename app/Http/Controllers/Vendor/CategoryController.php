@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Vendor;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\VendorBaseController;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Http\Requests\Vendor\CategoryRequest;
 use Illuminate\Support\Str;
 
-class CategoryController extends Controller
+class CategoryController extends VendorBaseController
 {
     public function store(CategoryRequest $request)
     {

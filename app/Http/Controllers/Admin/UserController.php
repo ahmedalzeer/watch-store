@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AdminBaseController;
 use App\Models\User;
 use App\Http\Requests\Admin\UserRequest;
 use Illuminate\Support\Facades\Hash;
@@ -10,13 +10,13 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
-class UserController extends Controller
+class UserController extends AdminBaseController
 {
     public function index(Request $request)
     {
         return Inertia::render('Admin/Users/Index', [
             'users' => User::query()
-                ->with('roles:id,name') 
+                ->with('roles:id,name')
                 ->when($request->search, function ($query, $search) {
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");

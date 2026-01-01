@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AdminBaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class MediaController extends Controller
+class MediaController extends AdminBaseController
 {
     public function uploadTemp(Request $request)
     {
