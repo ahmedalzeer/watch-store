@@ -35,11 +35,20 @@
                             <td class="px-4 py-3 text-sm">
                                 <div class="flex items-center font-semibold">
                                     <div
-                                        class="relative w-8 h-8 rounded-lg ltr:mr-3 rtl:ml-3 bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                                        <span class="text-purple-600 font-bold uppercase">{{
-                                            category.name?.[$page.props.locale]?.charAt(0) }}</span>
+                                        class="relative w-10 h-10 rounded-lg ltr:mr-3 rtl:ml-3 bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center overflow-hidden border dark:border-gray-700">
+                                        <img v-if="category.icon_url" :src="category.icon_url"
+                                            class="w-full h-full object-cover" alt="icon" />
+
+                                        <span v-else class="text-purple-600 font-bold uppercase text-lg">
+                                            {{ category.name?.[$page.props.locale]?.charAt(0) ||
+                                                category.name?.ar?.charAt(0) }}
+                                        </span>
                                     </div>
-                                    <span>{{ category.name?.[$page.props.locale] || category.name?.ar }}</span>
+                                    <div class="flex flex-col">
+                                        <span>{{ category.name?.[$page.props.locale] || category.name?.ar }}</span>
+                                        <span class="text-xs text-gray-400 font-normal md:hidden">{{ category.slug
+                                        }}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-sm italic text-gray-500">
@@ -99,6 +108,7 @@ import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import VendorLayout from '@/Layouts/VendorLayout.vue'; // تأكد من استخدام Layout التاجر
 import CategoryModal from './CategoryModal.vue';
+import CategoryShow from './CategoryShow.vue';
 import { useAlert } from '@/useAlert';
 
 const props = defineProps({

@@ -20,6 +20,10 @@ class Category extends Model implements HasMedia
         'is_active',
     ];
 
+    protected $appends = [
+        'icon_url',
+    ];
+
     public array $translatable = ['name'];
 
     public function store(): BelongsTo
@@ -35,5 +39,11 @@ class Category extends Model implements HasMedia
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function getIconUrlAttribute()
+    {
+        $media = $this->getFirstMedia('category_icons');
+        return $media ? $media->getUrl() : null;
     }
 }
