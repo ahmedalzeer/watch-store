@@ -5,7 +5,7 @@ import { Head } from '@inertiajs/vue3';
 
 <template>
 
-    <Head title="Admin Dashboard" />
+    <Head title="Vendor Dashboard" />
 
     <AdminLayout>
         <template #header>

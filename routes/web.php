@@ -37,5 +37,8 @@ Route::get('language/{locale}', function ($locale) {
 // Load Admin Routes
 require __DIR__ . '/admin.php';
 
+// Load vendor Routes
+require __DIR__ . '/vendor.php';
+
 // Load Auth Routes
 require __DIR__ . '/auth.php';

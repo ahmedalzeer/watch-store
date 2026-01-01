@@ -62,7 +62,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import SidebarContent from '@/Components/Admin/SidebarContent.vue';
+import SidebarContent from '@/Components/Vendor/SidebarContent.vue';
 import SearchInput from '@/Components/Header/SearchInput.vue';
 import ThemeToggle from '@/Components/Header/ThemeToggle.vue';
 import LanguageSwitcher from '@/Components/Header/LanguageSwitcher.vue';
