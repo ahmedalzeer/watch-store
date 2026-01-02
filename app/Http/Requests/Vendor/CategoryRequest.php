@@ -42,6 +42,8 @@ class CategoryRequest extends FormRequest
             'icon' => ['nullable', 'string'],
 
             'is_active' => ['boolean'],
+            'main_menu' => ['boolean'],
+            'main_store' => ['boolean'],
         ];
     }
 

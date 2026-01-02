@@ -21,6 +21,8 @@ class Category extends Model implements HasMedia
         'store_id',
         'parent_id',
         'is_active',
+        'main_menu',
+        'main_store',
     ];
 
     protected $dates = ['deleted_at'];

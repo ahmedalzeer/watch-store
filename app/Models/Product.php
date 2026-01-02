@@ -29,7 +29,9 @@ class Product extends Model implements HasMedia
         'discount_price',
         'stock',
         'specifications',
-        'is_active'
+        'is_active',
+        'main_menu',
+        'main_store',
     ];
 
     public function store()

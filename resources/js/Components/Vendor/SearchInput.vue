@@ -22,14 +22,20 @@ import { ref, watch } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 
-const search = ref(usePage().props.filters?.search || '');
+const search = ref(new URLSearchParams(window.location.search).get('search') || '');
 
-watch(search, debounce((value) => {
-
+watch(search, debounce((newValue) => {
     const urlParams = new URLSearchParams(window.location.search);
+    const currentSearch = urlParams.get('search') || '';
     const storeId = urlParams.get('store_id');
 
-    const queryParams = { search: value };
+    if (newValue === currentSearch) {
+        return;
+    }
+
+    const queryParams = {
+        search: newValue
+    };
 
     if (storeId) {
         queryParams.store_id = storeId;

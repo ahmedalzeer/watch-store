@@ -26,6 +26,8 @@ return new class extends Migration
             $table->json('specifications')->nullable();
             $table->unsignedBigInteger('views_count')->default(0);
             $table->boolean('is_active')->default(true);
+            $table->boolean('main_menu')->default(true);
+            $table->boolean('main_store')->default(true);
             $table->enum('condition', ['new', 'used', 'refurbished'])->default('new');
             $table->timestamps();
             $table->softDeletes();

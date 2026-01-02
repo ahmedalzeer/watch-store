@@ -59,6 +59,7 @@ class DefaultSeeder extends Seeder
             CurrencySeeder::class,
             StoreSeeder::class,
             CategorySeeder::class,
+            WatchBrandSeeder::class,
         ]);
     }
 }

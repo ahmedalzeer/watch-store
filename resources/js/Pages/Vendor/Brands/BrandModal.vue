@@ -2,7 +2,7 @@
     <Modal :show="show" @close="$emit('close')" max-width="lg">
         <div class="p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg shadow-xl">
             <h2 class="text-xl font-bold border-b pb-4 dark:border-gray-700 flex justify-between items-center">
-                <span>{{ isEdit ? $t('messages.edit_category') : $t('messages.create_category') }}</span>
+                <span>{{ isEdit ? $t('messages.edit_brand') : $t('messages.create_brand') }}</span>
                 <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -13,46 +13,6 @@
 
             <form @submit.prevent="submit"
                 class="mt-6 space-y-5 text-start overflow-y-auto max-h-[75vh] pr-2 custom-scrollbar">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="label-dark">{{ $t('messages.parent_category') }} ({{ $t('messages.optional')
-                            }})</label>
-                        <select v-model="form.parent_id" class="form-input">
-                            <option :value="null">{{ $t('messages.none') }}</option>
-                            <option v-for="cat in parentCategories" :key="cat.id" :value="cat.id">
-                                {{ cat.name?.[$page.props.locale] || cat.name?.ar }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="flex items-center md:pt-6">
-                        <label class="inline-flex items-center cursor-pointer group">
-                            <input type="checkbox" v-model="form.is_active" class="checkbox-purple">
-                            <span
-                                class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200">
-                                {{ $t('messages.active') }}
-                            </span>
-                        </label>
-                    </div>
-                    <div class="flex items-center md:pt-6">
-                        <label class="inline-flex items-center cursor-pointer group">
-                            <input type="checkbox" v-model="form.main_menu" class="checkbox-purple">
-                            <span
-                                class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200">
-                                {{ $t('messages.main_menu') }}
-                            </span>
-                        </label>
-                    </div>
-                    <div class="flex items-center md:pt-6">
-                        <label class="inline-flex items-center cursor-pointer group">
-                            <input type="checkbox" v-model="form.main_store" class="checkbox-purple">
-                            <span
-                                class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200">
-                                {{ $t('messages.main_store') }}
-                            </span>
-                        </label>
-                    </div>
-                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-1">
@@ -69,12 +29,52 @@
 
                 <div class="space-y-1">
                     <label class="label-dark">{{ $t('messages.slug') }}</label>
-                    <input v-model="form.slug" type="text" class="form-input" placeholder="electronics-gadgets" />
+                    <input v-model="form.slug" type="text" class="form-input" placeholder="rolex-luxury" />
                     <div v-if="form.errors.slug" class="error-msg">{{ form.errors.slug }}</div>
                 </div>
 
+                <div class="space-y-1">
+                    <label class="label-dark">{{ $t('messages.website') }} ({{ $t('messages.optional') }})</label>
+                    <input v-model="form.website" type="url" class="form-input" placeholder="https://www.brand.com" />
+                    <div v-if="form.errors.website" class="error-msg">{{ form.errors.website }}</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="inline-flex items-center cursor-pointer group">
+                            <input type="checkbox" v-model="form.is_featured" class="checkbox-purple">
+                            <span class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400">{{
+                                $t('messages.featured_brand') }}</span>
+                        </label>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="inline-flex items-center cursor-pointer group">
+                            <input type="checkbox" v-model="form.is_active" class="checkbox-purple">
+                            <span class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400">{{
+                                $t('messages.active') }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="inline-flex items-center cursor-pointer group">
+                            <input type="checkbox" v-model="form.main_menu" class="checkbox-purple">
+                            <span class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400">{{
+                                $t('messages.main_menu') }}</span>
+                        </label>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="inline-flex items-center cursor-pointer group">
+                            <input type="checkbox" v-model="form.main_store" class="checkbox-purple">
+                            <span class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-400">{{
+                                $t('messages.main_store') }}</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="space-y-2">
-                    <label class="label-dark">{{ $t('messages.category_icon') }}</label>
+                    <label class="label-dark">{{ $t('messages.brand_logo') }}</label>
                     <div
                         class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 bg-gray-50 dark:bg-gray-700/30">
                         <Dropzone :url="route('vendor.media.upload.temp')"
@@ -106,32 +106,33 @@ import Dropzone from '@/Components/Dropzone.vue';
 
 const props = defineProps({
     show: Boolean,
-    parentCategories: Array,
-    editCategory: Object,
+    editBrand: Object,
     storeId: [Number, String]
 });
 const emit = defineEmits(['close', 'refresh']);
-const isEdit = computed(() => !!props.editCategory);
+const isEdit = computed(() => !!props.editBrand);
 
 const form = useForm({
     store_id: props.storeId,
-    parent_id: null,
     name: { ar: '', en: '' },
     slug: '',
-    image_path: '',
+    website: '',
+    is_featured: false,
     is_active: true,
     main_menu: false,
     main_store: false,
+    image_path: '',
 });
 
 watch(() => props.show, (val) => {
-    if (val && props.editCategory) {
-        form.parent_id = props.editCategory.parent_id;
-        form.name = { ar: props.editCategory.name.ar, en: props.editCategory.name.en };
-        form.slug = props.editCategory.slug;
-        form.is_active = !!props.editCategory.is_active;
-        form.main_menu = !!props.editCategory.main_menu;
-        form.main_store = !!props.editCategory.main_store;
+    if (val && props.editBrand) {
+        form.name = { ar: props.editBrand.name.ar, en: props.editBrand.name.en };
+        form.slug = props.editBrand.slug;
+        form.website = props.editBrand.website || '';
+        form.is_featured = !!props.editBrand.is_featured;
+        form.is_active = !!props.editBrand.is_active;
+        form.main_menu = !!props.editBrand.main_menu;
+        form.main_store = !!props.editBrand.main_store;
         form.store_id = props.storeId;
         form.image_path = '';
     } else if (val) {
@@ -142,11 +143,11 @@ watch(() => props.show, (val) => {
 
 const submit = () => {
     if (isEdit.value) {
-        form.put(route('vendor.categories.update', props.editCategory.id), {
+        form.put(route('vendor.brands.update', props.editBrand.id), {
             onSuccess: () => emit('refresh', 'updated'),
         });
     } else {
-        form.post(route('vendor.categories.store'), {
+        form.post(route('vendor.brands.store'), {
             onSuccess: () => emit('refresh', 'added'),
         });
     }

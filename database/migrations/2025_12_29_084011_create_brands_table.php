@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->boolean('is_featured')->default(false);
             $table->foreignId('store_id')->constrained()->onDelete('cascade');
+            $table->boolean('is_active')->default(true);
+            $table->boolean('main_menu')->default(true);
+            $table->boolean('main_store')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

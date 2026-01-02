@@ -27,7 +27,7 @@
                     {{ category?.name?.[$page.props.locale] || category?.name?.ar }}
                 </h3>
 
-                <div class="mt-2">
+                <div class="mt-3 flex flex-wrap gap-2 justify-center">
                     <span :class="category?.is_active
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                         : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
@@ -46,19 +46,41 @@
                     </span>
                 </div>
 
+                <div class="grid grid-cols-2 gap-4 px-3 py-2 border-y dark:border-gray-700">
+                    <div class="flex flex-col space-y-1">
+                        <span class="text-xs font-bold text-gray-500 uppercase">{{ $t('messages.main_menu') }}</span>
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                            <div :class="category?.main_menu ? 'bg-purple-500' : 'bg-gray-300'"
+                                class="w-3 h-3 rounded-full shadow-sm"></div>
+                            <span class="text-sm font-semibold">{{ category?.main_menu ? $t('messages.yes') :
+                                $t('messages.no') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col space-y-1">
+                        <span class="text-xs font-bold text-gray-500 uppercase">{{ $t('messages.main_store') }}</span>
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                            <div :class="category?.main_store ? 'bg-blue-500' : 'bg-gray-300'"
+                                class="w-3 h-3 rounded-full shadow-sm"></div>
+                            <span class="text-sm font-semibold">{{ category?.main_store ? $t('messages.yes') :
+                                $t('messages.no') }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 px-3">
                     <span class="w-32 font-bold flex-shrink-0">{{ $t('messages.slug') }}:</span>
                     <span class="text-purple-600 dark:text-purple-400 font-mono font-bold">{{ category?.slug }}</span>
                 </div>
 
-                <div class="grid grid-cols-1 gap-3 px-3 border-t pt-4 dark:border-gray-700">
+                <div class="grid grid-cols-1 gap-3 px-3">
                     <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <span class="w-32 font-bold flex-shrink-0">{{ $t('messages.name') }} (AR):</span>
-                        <span>{{ category?.name?.ar }}</span>
+                        <span class="dark:text-gray-300">{{ category?.name?.ar }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <span class="w-32 font-bold flex-shrink-0">{{ $t('messages.name') }} (EN):</span>
-                        <span>{{ category?.name?.en }}</span>
+                        <span class="dark:text-gray-300">{{ category?.name?.en }}</span>
                     </div>
                 </div>
             </div>
