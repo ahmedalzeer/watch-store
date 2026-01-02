@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('is_featured')->default(false);
             $table->foreignId('store_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

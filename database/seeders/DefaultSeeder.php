@@ -58,6 +58,7 @@ class DefaultSeeder extends Seeder
         $this->call([
             CurrencySeeder::class,
             StoreSeeder::class,
+            CategorySeeder::class,
         ]);
     }
 }

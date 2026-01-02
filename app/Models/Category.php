@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\CreateAtHuman;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model implements HasMedia
 {
-    use HasTranslations, InteractsWithMedia;
+    use HasTranslations, InteractsWithMedia, SoftDeletes, CreateAtHuman;
 
     protected $fillable = [
         'name',
@@ -19,6 +22,8 @@ class Category extends Model implements HasMedia
         'parent_id',
         'is_active',
     ];
+
+    protected $dates = ['deleted_at'];
 
     protected $appends = [
         'icon_url',
@@ -33,7 +38,12 @@ class Category extends Model implements HasMedia
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     public function products()
