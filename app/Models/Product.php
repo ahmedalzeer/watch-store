@@ -62,6 +62,14 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(Brand::class);
     }
 
+    public function thumbnail()
+    {
+        return $this->morphOne(\Spatie\MediaLibrary\MediaCollections\Models\Media::class, 'model')
+            ->where('collection_name', 'product_gallery')
+            ->orderBy('custom_properties->is_main', 'desc')
+            ->orderBy('order_column');
+    }
+
     public function getMainImageUrlAttribute()
     {
         $mainMedia = $this->getMedia('product_gallery')
@@ -76,6 +84,6 @@ class Product extends Model implements HasMedia
 
     public function getImageUrlAttribute()
     {
-        return $this->main_image_url;
+        return $this->thumbnail ? $this->thumbnail->getFullUrl() : 'https://ui-avatars.com/api/?name=Product';
     }
 }

@@ -1,10 +1,10 @@
 <template>
-    <section class="bg-white overflow-hidden relative">
+    <section class="bg-white overflow-hidden relative" v-if="displayBanners.length > 0">
         <Swiper :modules="[Autoplay, EffectFade, Pagination]" :effect="'fade'"
             :autoplay="{ delay: 5000, disableOnInteraction: false }" :pagination="{ clickable: true }"
             :rtl="$page.props.locale === 'ar'" class="banner-slider h-[500px] md:h-[700px]">
 
-            <SwiperSlide v-for="(banner, index) in bannerData" :key="index">
+            <SwiperSlide v-for="(banner, index) in displayBanners" :key="index">
                 <div class="h-full w-full relative flex items-center container mx-auto px-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full">
                         <!-- Left Content -->
@@ -25,7 +25,7 @@
                             </p>
 
                             <div class="pt-6 transition-all delay-1000">
-                                <Link :href="route('shop.index')"
+                                <Link :href="banner.link || route('shop.index')"
                                     class="inline-block bg-black text-white px-10 py-4 text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition-all transform hover:-translate-y-1">
                                     Shop Now
                                 </Link>
@@ -54,6 +54,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
@@ -66,7 +67,7 @@ const props = defineProps({
 });
 
 // High Quality Placeholders following the theme
-const bannerData = [
+const fallbackBanners = [
     {
         title: 'LUXURY WATCHES',
         description: 'Discover our exclusive collection of premium timepieces that define elegance and precision.',
@@ -76,13 +77,12 @@ const bannerData = [
         title: 'ELITE STYLE',
         description: 'Explore the finest craftsmanship with our latest arrivals in premium watchmaking.',
         image_url: 'https://images.unsplash.com/photo-1508685096489-7aac29a7dff7?q=80&w=1000&auto=format&fit=crop'
-    },
-    {
-        title: 'MODERN CLASSIC',
-        description: 'A perfect blend of traditional heritage and modern technology for the discerning collector.',
-        image_url: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1000&auto=format&fit=crop'
     }
 ];
+
+const displayBanners = computed(() => {
+    return props.banners && props.banners.length > 0 ? props.banners : fallbackBanners;
+});
 
 const handleImageError = (e) => {
     e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop';

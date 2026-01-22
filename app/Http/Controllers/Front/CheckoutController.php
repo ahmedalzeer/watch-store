@@ -29,7 +29,7 @@ class CheckoutController extends Controller
         $subtotal = 0;
 
         foreach ($cart as $key => $item) {
-            $product = \App\Models\Product::with(['translations', 'thumbnail'])->find($item['product_id']);
+            $product = \App\Models\Product::with(['thumbnail'])->find($item['product_id']);
 
             $variant = isset($item['variant_id'])
                 ? ProductVariant::with('images')->find($item['variant_id'])

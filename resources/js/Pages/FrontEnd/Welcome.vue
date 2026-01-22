@@ -1,16 +1,16 @@
 <template>
     <ShopLayout>
 
-        <Head title="Home" />
+        <Head :title="currentStore?.name || 'Home'" />
 
         <!-- Hero Section -->
         <HeroSection :banners="banners" />
 
         <!-- Categories Slider -->
-        <CategorySlider />
+        <CategorySlider :categories="categories" />
 
         <!-- Trending Products (Slider) -->
-        <section class="py-24 bg-white container mx-auto px-4">
+        <section class="py-24 bg-white container mx-auto px-4" v-if="products.data?.length > 0">
             <div class="flex items-center justify-between mb-16">
                 <h2 class="text-4xl font-black text-gray-900 tracking-tight">
                     Trending Now
@@ -51,7 +51,7 @@
         </section>
 
         <!-- Featured Products (Grid) -->
-        <section class="py-24 bg-white container mx-auto px-4">
+        <section class="py-24 bg-white container mx-auto px-4" v-if="products.data?.length > 0">
             <div class="text-center mb-16 space-y-4">
                 <span class="text-blue-600 font-bold uppercase tracking-[0.3em] text-[10px]">Curated Collection</span>
                 <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Our Favorites</h1>
@@ -90,7 +90,10 @@ import Swal from 'sweetalert2';
 
 defineProps({
     products: Object,
-    banners: Array
+    banners: Array,
+    categories: Array,
+    brands: Array,
+    currentStore: Object
 });
 
 const handleToggleWishlist = (product) => {

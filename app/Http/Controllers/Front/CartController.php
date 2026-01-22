@@ -58,7 +58,7 @@ class CartController extends Controller
             $cart[$key] = [
                 'product_id' => $product->id,
                 'variant_id' => $variant->id,
-                'variant_name' => $variant->name ?? $product->translation->name,
+                'variant_name' => $variant->name ?? $product->name,
                 'price' => $variant->converted_discount_price ?? $variant->converted_price,
                 'quantity' => $quantity,
                 'image' => optional($variant->images->first() ?? $product->thumbnail)->image_url,

@@ -14,7 +14,7 @@ class WishlistController extends Controller
         $customer = Auth::guard('customer')->user();
 
         $products = $customer->wishlistProducts()
-            ->with(['translation', 'thumbnail', 'primaryVariant', 'reviews'])
+            ->with(['thumbnail'])
             ->withCount('reviews')
             ->orderBy('wishlists.created_at', 'desc')
             ->get();

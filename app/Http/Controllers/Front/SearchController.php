@@ -15,26 +15,17 @@ class SearchController extends Controller
         $query = $request->input('q');
         $locale = $request->input('locale', App::getLocale());
 
-        $products = Product::whereHas('translations', function ($q) use ($query, $locale) {
-            $q->where('name', 'like', "%{$query}%")->where('language_code', $locale);
-        })
-            ->with([
-                'translations' => function ($q) use ($locale) {
-                    $q->where('language_code', $locale)->select('product_id', 'name');
-                },
-                'thumbnail',
-            ])
+        $products = Product::where('name', 'like', "%{$query}%")
+            ->with(['thumbnail'])
             ->limit(10)
-            ->get(['id', 'slug']);
+            ->get(['id', 'slug', 'name']);
 
         $products = $products->map(function ($product) {
             return [
                 'id' => $product->id,
                 'slug' => $product->slug,
-                'thumbnail' => $product->thumbnail
-                    ? Storage::url($product->thumbnail->image_url)
-                    : asset('default-thumbnail.jpg'),
-                'name' => $product->translations->first()->name ?? null,
+                'thumbnail' => $product->image_url,
+                'name' => $product->name,
             ];
         });
 
@@ -46,17 +37,11 @@ class SearchController extends Controller
         $query = $request->input('q');
         $locale = $request->input('locale', App::getLocale());
 
-        $products = Product::whereHas('translations', function ($q) use ($query, $locale) {
-            $q->where('name', 'like', "%{$query}%")->where('locale', $locale);
-        })
-            ->with([
-                'translations' => function ($q) use ($locale) {
-                    $q->where('locale', $locale)->select('product_id', 'name', 'description');
-                },
-                'thumbnail',
-            ])
-            ->paginate(10);
+        $products = Product::where('name', 'like', "%{$query}%")
+            ->with(['thumbnail'])
+            ->paginate(12);
 
+        // Map to existing view format if necessary, or just pass products
         return view('search-results', compact('products', 'query'));
     }
 }

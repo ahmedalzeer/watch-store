@@ -1,5 +1,5 @@
 <template>
-    <section class="py-24 bg-white overflow-hidden">
+    <section class="py-24 bg-white overflow-hidden" v-if="categories && categories.length > 0">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                 <div class="space-y-4 rtl:text-right">
@@ -30,10 +30,11 @@
                 }" :autoplay="{ delay: 4000 }" :loop="true" class="category-slider">
 
                 <SwiperSlide v-for="(cat, index) in categories" :key="index">
-                    <Link :href="route('shop.index', { category: cat.slug })" class="group block">
+                    <Link :href="route('category.show', cat.slug)" class="group block">
                         <div
                             class="relative aspect-square rounded-full bg-gray-50 flex items-center justify-center p-12 transition-all duration-500 group-hover:bg-blue-50">
-                            <img :src="cat.image_url" :alt="cat.name"
+                            <img :src="cat.icon_url || 'https://images.unsplash.com/photo-1524592093033-6fb35070fc16?q=80&w=500&auto=format&fit=crop'"
+                                :alt="cat.name"
                                 class="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6 drop-shadow-xl">
 
                             <!-- Overlay Label -->
@@ -62,10 +63,10 @@ import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-const categories = [
-    { name: 'Classic', slug: 'classic', image_url: 'https://images.unsplash.com/photo-1524592093033-6fb35070fc16?q=80&w=500&auto=format&fit=crop' },
-    { name: 'Luxury', slug: 'luxury', image_url: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=500&auto=format&fit=crop' },
-    { name: 'Smart', slug: 'smart', image_url: 'https://images.unsplash.com/photo-1508685096489-7aac29a7dff7?q=80&w=500&auto=format&fit=crop' },
-    { name: 'Sport', slug: 'sport', image_url: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=500&auto=format&fit=crop' },
-];
+defineProps({
+    categories: {
+        type: Array,
+        default: () => []
+    }
+});
 </script>

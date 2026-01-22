@@ -5,87 +5,69 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\FrontBaseController;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Banner;
+use App\Models\Brand;
+use App\Models\Store;
+use Illuminate\Http\Request;
 
 class WelcomeController extends FrontBaseController
 {
-    public function index()
+    public function index(Request $request)
     {
+        $host = $request->getHost();
+        $subdomain = explode('.', $host)[0];
+        $currentStore = Store::where('subdomain', $subdomain)->first();
 
+        if (!$currentStore) {
+            // Fallback for local development or main domain
+            $currentStore = Store::first();
+        }
 
-        $dynamicSections = Category::with(['products' => function ($query) {
-            $query->where('is_active', true)
-                ->with(['brand', 'media'])
-                ->latest()
-                ->take(8);
-        }])
-            ->whereNull('parent_id')
-            ->whereHas('products', function ($query) {
-                $query->where('is_active', true);
-            })
+        if (!$currentStore) {
+             return inertia('FrontEnd/Welcome', [
+                'banners' => [],
+                'products' => ['data' => []],
+                'brands' => [],
+                'categories' => []
+            ]);
+        }
+
+        $storeId = $currentStore->id;
+
+        $banners = Banner::where('store_id', $storeId)
+            ->where('active', true)
+            ->orderBy('order')
             ->get()
-            ->map(function ($category) {
+            ->map(function($banner) {
                 return [
-                    'id' => $category->slug,
-                    'title' => $category->getTranslations('name'),
-                    'products' => $category->products
+                    'title' => $banner->title,
+                    'description' => $banner->description,
+                    'image_url' => $banner->getFirstMediaUrl('banners') ?: '/images/placeholder-banner.jpg',
+                    'link' => $banner->link
                 ];
             });
 
-        $products = Product::with(['brand', 'media'])
+        $products = Product::where('store_id', $storeId)
+            ->with(['brand', 'media', 'category'])
             ->where('is_active', true)
             ->latest()
             ->paginate(12);
 
+        $brands = Brand::where('store_id', $storeId)
+            ->where('is_active', true)
+            ->get();
+            
+        $categories = Category::where('store_id', $storeId)
+            ->whereNull('parent_id')
+            ->where('is_active', true)
+            ->get();
+
         return inertia('FrontEnd/Welcome', [
-            'banners' => $this->getBanner(),
+            'banners' => $banners,
             'products' => $products,
+            'brands' => $brands,
+            'categories' => $categories,
+            'currentStore' => $currentStore
         ]);
-    }
-
-
-    private function getBanner()
-    {
-        return [
-            [
-                'image' => '/images/0101.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'PRECISION ELEGANCE',
-                'subtitle' => 'تشكيلة رولكس الجديدة 2026'
-            ],
-            [
-                'image' => '/images/0102.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'LUXURY DEFINED',
-                'subtitle' => 'تصاميم تعكس شخصيتك الفريدة'
-            ],
-            [
-                'image' => '/images/0103.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'PURE SOPHISTICATION',
-                'subtitle' => 'دقة متناهية في كل ثانية'
-            ],
-            [
-                'image' => '/images/0104.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'MODERN HERITAGE',
-                'subtitle' => 'عراقة الماضي بروح الحاضر'
-            ],
-            [
-                'image' => '/images/0105.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'ELITE CRAFTSMANSHIP',
-                'subtitle' => 'صناعة يدوية لأصحاب الذوق الرفيع'
-            ],
-            [
-                'image' => '/images/0106.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'BEYOND LUXURY',
-                'subtitle' => 'أكثر من مجرد ساعة.. إنها تحفة'
-            ],
-            [
-                'image' => '/images/0107.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'ICONIC MOMENTS',
-                'subtitle' => 'وثق لحظاتك بأناقة لا تنتهي'
-            ],
-            [
-                'image' => '/images/0108.jpeg?auto=format&fit=crop&q=80&w=1920',
-                'title' => 'ROYAL CHRONO',
-                'subtitle' => 'القوة والأناقة في تصميم واحد'
-            ],
-        ];
     }
 }
