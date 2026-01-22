@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'added_to_wishlist' => 'تمت الإضافة لقائمة الأمنيات',
+    'removed_from_wishlist' => 'تمت الإزالة من قائمة الأمنيات',
+    'review_already_submitted' => 'لقد قمت بتقييم هذا المنتج مسبقاً.',
+    'review_success' => 'تم إرسال تقييمك بنجاح.',
     'welcome' => ' مرحبًا بكم في موقعنا!',
     'login' => 'تسجيل الدخول',
     'admin_panel' => 'لوحة التحكم',

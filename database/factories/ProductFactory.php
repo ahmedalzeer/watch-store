@@ -18,6 +18,9 @@ class ProductFactory extends Factory
     {
         $price = $this->faker->numberBetween(100, 5000);
         return [
+            'store_id' => \App\Models\Store::factory(),
+            'category_id' => \App\Models\Category::factory(),
+            'brand_id' => \App\Models\Brand::factory(),
             'name' => [
                 'en' => $this->faker->words(3, true),
                 'ar' => $this->faker->words(3, true),

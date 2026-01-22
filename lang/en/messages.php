@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'added_to_wishlist' => 'Added to wishlist',
+    'removed_from_wishlist' => 'Removed from wishlist',
+    'review_already_submitted' => 'You have already submitted a review for this product.',
+    'review_success' => 'Your review has been submitted successfully.',
     'welcome' => 'Welcome to our website!',
     'login' => 'Login',
     'admin_panel' => 'Admin Panel',

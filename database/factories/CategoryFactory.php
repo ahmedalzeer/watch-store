@@ -17,6 +17,7 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
+            'store_id' => \App\Models\Store::factory(),
             'name' => [
                 'en' => $this->faker->words(2, true),
                 'ar' => $this->faker->words(2, true),

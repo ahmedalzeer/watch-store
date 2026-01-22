@@ -17,6 +17,7 @@ class StoreFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => \App\Models\User::factory(),
             'name' => [
                 'en' => $this->faker->company(),
                 'ar' => $this->faker->company(),
@@ -26,7 +27,7 @@ class StoreFactory extends Factory
                 'en' => $this->faker->sentence(),
                 'ar' => $this->faker->sentence(),
             ],
-            'currency_id' => 1,
+            'currency_id' => \App\Models\Currency::factory(),
             'is_active' => true,
         ];
     }

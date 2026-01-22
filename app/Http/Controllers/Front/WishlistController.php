@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class WishlistController extends Controller
 {
     public function index()
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = Auth::user();
 
         $products = $customer->wishlistProducts()
             ->with(['thumbnail'])
@@ -19,7 +20,9 @@ class WishlistController extends Controller
             ->orderBy('wishlists.created_at', 'desc')
             ->get();
 
-        return view('themes.xylo.wishlist', compact('products'));
+        return Inertia::render('FrontEnd/Wishlist', [
+            'products' => $products
+        ]);
     }
 
     public function toggle(Request $request)
@@ -28,20 +31,20 @@ class WishlistController extends Controller
             'product_id' => 'required|exists:products,id',
         ]);
 
-        $customer = Auth::guard('customer')->user();
+        $customer = Auth::user();
 
-        $wishlist = Wishlist::where('customer_id', $customer->id)
+        $wishlist = Wishlist::where('user_id', $customer->id)
             ->where('product_id', $request->product_id)
             ->first();
 
         if ($wishlist) {
             $wishlist->delete();
 
-            return response()->json(['status' => 'removed', 'message' => __('store.product_detail.removed_from_wishlist')]);
+            return response()->json(['status' => 'removed', 'message' => __('messages.removed_from_wishlist')]);
         }
 
         Wishlist::create([
-            'customer_id' => $customer->id,
+            'user_id' => $customer->id,
             'product_id' => $request->product_id,
         ]);
 

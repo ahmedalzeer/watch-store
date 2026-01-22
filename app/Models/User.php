@@ -67,6 +67,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Store::class);
     }
 
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')->withTimestamps();
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('avatars')

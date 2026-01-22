@@ -19,19 +19,19 @@ class ReviewController extends Controller
 
         // Check if already reviewed
         if (ProductReview::where('product_id', $request->product_id)
-            ->where('customer_id', Auth::guard('customer')->id())
+            ->where('user_id', Auth::id())
             ->exists()) {
-            return back()->with('error', __('store.product_detail.review_already_submitted'));
+            return back()->with('error', __('messages.review_already_submitted'));
         }
 
         ProductReview::create([
-            'customer_id' => Auth::guard('customer')->id(),
+            'user_id' => Auth::id(),
             'product_id' => $request->product_id,
             'rating' => $request->rating,
             'review' => $request->review,
             'is_approved' => 1,
         ]);
 
-        return back()->with('success', __('store.product_detail.review_success'));
+        return back()->with('success', __('messages.review_success'));
     }
 }

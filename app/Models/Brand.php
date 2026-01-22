@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CreateAtHuman;
+use App\Traits\InertiaTranslatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Translatable\HasTranslations;
@@ -12,7 +13,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Brand extends Model implements HasMedia
 {
-    use HasFactory, HasTranslations, SoftDeletes, CreateAtHuman, InteractsWithMedia;
+    use HasFactory, HasTranslations, SoftDeletes, CreateAtHuman, InteractsWithMedia, InertiaTranslatable;
 
     public $translatable = ['name'];
     protected $fillable = ['name', 'slug', 'store_id', 'website', 'is_featured', 'is_active', 'main_menu', 'main_store'];

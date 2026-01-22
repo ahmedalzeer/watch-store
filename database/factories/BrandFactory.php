@@ -17,6 +17,7 @@ class BrandFactory extends Factory
     public function definition(): array
     {
         return [
+            'store_id' => \App\Models\Store::factory(),
             'name' => [
                 'en' => $this->faker->company(),
                 'ar' => $this->faker->company(),

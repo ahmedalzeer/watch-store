@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CreateAtHuman;
+use App\Traits\InertiaTranslatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Product extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, HasTranslations, InteractsWithMedia, CreateAtHuman;
+    use HasFactory, SoftDeletes, HasTranslations, InteractsWithMedia, CreateAtHuman, InertiaTranslatable;
 
     protected $fillable = [
         'store_id',
@@ -60,6 +61,21 @@ class Product extends Model implements HasMedia
     public function brand()
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function primaryVariant()
+    {
+        return $this->hasOne(ProductVariant::class)->where('is_primary', true);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
     }
 
     public function thumbnail()
