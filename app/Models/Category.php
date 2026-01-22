@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\CreateAtHuman;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Translatable\HasTranslations;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model implements HasMedia
 {
-    use HasTranslations, InteractsWithMedia, SoftDeletes, CreateAtHuman;
+    use HasFactory, HasTranslations, InteractsWithMedia, SoftDeletes, CreateAtHuman;
 
     protected $fillable = [
         'name',

@@ -37,7 +37,7 @@ class ProductRequest extends FormRequest
                 'required',
                 Rule::unique('products')->where(function ($query) {
                     return $query->where('store_id', $this->store_id);
-                })->ignore($this->product)
+                })->ignore($productId)
             ],
             'price' => ['required', 'numeric', 'min:0'],
             'discount_price' => ['nullable', 'numeric', 'lt:price'],

@@ -39,6 +39,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $storeId = $this->getStoreId($request);
+        $this->authorizeStore($storeId); // Enforce authorization
 
         if (!$storeId) {
             return redirect()->route('vendor.dashboard')->with('error', 'No store found.');

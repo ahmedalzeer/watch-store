@@ -10,7 +10,7 @@
                 </h2>
 
                 <button @click="openModal()"
-                    class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 shadow-md transition-all">
+                    class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 shadow-md transition-all active:scale-95">
                     + {{ $t('messages.create_banner') }}
                 </button>
             </div>
@@ -43,7 +43,7 @@
                                         <span>{{ banner.title?.[$page.props.locale] || banner.title?.ar }}</span>
                                         <span class="text-xs text-gray-400 truncate max-w-[200px]">{{ banner.link ||
                                             '---'
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -84,6 +84,11 @@
                                 </div>
                             </td>
                         </tr>
+                        <tr v-if="banners.data.length === 0">
+                            <td colspan="4" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                                {{ $t('messages.no_data_found') }}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -94,6 +99,10 @@
                             class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded transition-colors"
                             :class="link.active ? 'bg-purple-600 text-white' : 'bg-white dark:bg-gray-700 dark:text-gray-300 hover:bg-purple-50'"
                             v-html="link.label" preserve-scroll />
+                        <span v-else
+                            class="px-3 py-1 text-sm text-gray-400 border border-gray-300 dark:border-gray-600 rounded cursor-not-allowed"
+                            v-html="link.label">
+                        </span>
                     </template>
                 </div>
             </div>

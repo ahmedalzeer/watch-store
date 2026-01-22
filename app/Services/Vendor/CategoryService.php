@@ -52,6 +52,8 @@ class CategoryService
             'slug' => $data['slug'] ?? null,
             'parent_id' => $data['parent_id'] ?? null,
             'is_active' => $data['is_active'] ?? true,
+            'main_menu' => $data['main_menu'] ?? false,
+            'main_store' => $data['main_store'] ?? false,
         ];
 
         return $this->categoryRepository->create($categoryData);
@@ -76,6 +78,8 @@ class CategoryService
             'slug' => $data['slug'] ?? $category->slug,
             'parent_id' => $data['parent_id'] ?? null,
             'is_active' => $data['is_active'] ?? true,
+            'main_menu' => $data['main_menu'] ?? false,
+            'main_store' => $data['main_store'] ?? false,
         ];
 
         return $this->categoryRepository->update($category, $updateData);

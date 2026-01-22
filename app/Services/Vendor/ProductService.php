@@ -46,8 +46,10 @@ class ProductService
             'sku' => $this->generateSku($storeId, $data['sku'] ?? null),
             'barcode' => $data['barcode'] ?? null,
             'track_quantity' => $data['track_quantity'] ?? true,
-            'quantity' => $data['quantity'] ?? 0,
-            'status' => $data['status'] ?? true,
+            'stock' => $data['stock'] ?? 0,
+            'is_active' => $data['is_active'] ?? true,
+            'main_menu' => $data['main_menu'] ?? false,
+            'main_store' => $data['main_store'] ?? false,
             'is_featured' => $data['is_featured'] ?? false,
             'slug' => $this->generateSlug($data['name']['en'] ?? $data['name']['ar']),
         ];
@@ -80,8 +82,10 @@ class ProductService
             'cost_price' => $data['cost_price'] ?? null,
             'barcode' => $data['barcode'] ?? null,
             'track_quantity' => $data['track_quantity'] ?? true,
-            'quantity' => $data['quantity'] ?? 0,
-            'status' => $data['status'] ?? true,
+            'stock' => $data['stock'] ?? 0,
+            'is_active' => $data['is_active'] ?? true,
+            'main_menu' => $data['main_menu'] ?? false,
+            'main_store' => $data['main_store'] ?? false,
             'is_featured' => $data['is_featured'] ?? false,
         ];
 

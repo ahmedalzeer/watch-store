@@ -19,7 +19,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function paginateByStore(int $storeId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         return Product::where('store_id', $storeId)
-            ->with(['category', 'brand'])
+            ->with(['category', 'brand', 'media'])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name->ar', 'like', "%{$search}%")

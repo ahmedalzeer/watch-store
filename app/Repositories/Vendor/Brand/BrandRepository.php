@@ -19,6 +19,7 @@ class BrandRepository implements BrandRepositoryInterface
     public function paginateByStore(int $storeId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         return Brand::where('store_id', $storeId)
+            ->with('media')
             ->when($search, function ($query, $search) {
                 $query->where('name->ar', 'like', "%{$search}%")
                     ->orWhere('name->en', 'like', "%{$search}%");

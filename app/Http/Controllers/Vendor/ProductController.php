@@ -40,6 +40,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $storeId = $this->getStoreId($request);
+        $this->authorizeStore($storeId);
 
         $products = $this->productService->paginateProducts($storeId, $request->only(['search']));
 

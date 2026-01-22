@@ -19,7 +19,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function paginateByStore(int $storeId, ?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         return Category::where('store_id', $storeId)
-            ->with('parent')
+            ->with(['parent', 'media'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name->ar', 'like', "%{$search}%")

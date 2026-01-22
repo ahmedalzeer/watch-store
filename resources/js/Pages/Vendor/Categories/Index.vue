@@ -47,7 +47,7 @@
                                     <div class="flex flex-col">
                                         <span>{{ category.name?.[$page.props.locale] || category.name?.ar }}</span>
                                         <span class="text-xs text-gray-400 font-normal md:hidden">{{ category.slug
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -90,6 +90,11 @@
                                         </svg>
                                     </button>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr v-if="categories.data.length === 0">
+                            <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                                {{ $t('messages.no_data_found') }}
                             </td>
                         </tr>
                     </tbody>

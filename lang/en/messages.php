@@ -226,6 +226,10 @@ return [
     'banners_management' => 'Banners Management',
     'banner' => 'Banner',
     'type' => 'Type',
+    'no_data_found' => 'No data found.',
+    'metadata' => 'Metadata',
+    'no_description' => 'No description available.',
+    'low_stock' => 'Low Stock',
 
 
 ];

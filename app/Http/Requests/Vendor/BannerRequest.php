@@ -22,12 +22,14 @@ class BannerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'required|in:promotion,sale,seasonal,featured,announcement',
+            'type' => 'required|in:main,promo,footer,promotion,sale,seasonal,featured,announcement',
             'title.ar' => 'required|string|max:255',
             'title.en' => 'required|string|max:255',
             'description.ar' => 'nullable|string|min:3',
             'description.en' => 'nullable|string|min:3',
             'link' => 'nullable|url',
+            'active' => 'boolean',
+            'order' => 'integer',
             'image_path' => 'nullable|string',
         ];
     }

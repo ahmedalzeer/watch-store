@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CreateAtHuman;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 use Spatie\MediaLibrary\HasMedia;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Store extends Model implements HasMedia
 {
-    use HasTranslations, InteractsWithMedia, CreateAtHuman;
+    use HasFactory, HasTranslations, InteractsWithMedia, CreateAtHuman;
 
     public $translatable = ['name', 'description'];
 

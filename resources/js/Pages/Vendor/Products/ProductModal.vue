@@ -19,10 +19,12 @@
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.name') }} (AR)</label>
                         <input v-model="form.name.ar" type="text" class="form-input" required />
+                        <InputError :message="form.errors['name.ar']" />
                     </div>
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.name') }} (EN)</label>
                         <input v-model="form.name.en" type="text" class="form-input" required />
+                        <InputError :message="form.errors['name.en']" />
                     </div>
                 </div>
 
@@ -30,6 +32,7 @@
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.slug') }}</label>
                         <input v-model="form.slug" type="text" class="form-input" required />
+                        <InputError :message="form.errors.slug" />
                     </div>
                     <div class="space-y-1">
                         <div class="flex justify-between items-center">
@@ -50,6 +53,7 @@
                                 </svg>
                             </div>
                         </div>
+                        <InputError :message="form.errors.sku" />
                     </div>
                 </div>
 
@@ -57,10 +61,12 @@
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.description') }} (AR)</label>
                         <textarea v-model="form.description.ar" type="text" class="form-input" required></textarea>
+                        <InputError :message="form.errors['description.ar']" />
                     </div>
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.description') }} (EN)</label>
                         <textarea v-model="form.description.en" type="text" class="form-input" required></textarea>
+                        <InputError :message="form.errors['description.en']" />
                     </div>
                 </div>
 
@@ -73,6 +79,7 @@
                                 {{ cat.name?.[$page.props.locale] }}
                             </option>
                         </select>
+                        <InputError :message="form.errors.category_id" />
                     </div>
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.brand') }}</label>
@@ -82,6 +89,7 @@
                                 {{ brand.name?.[$page.props.locale] }}
                             </option>
                         </select>
+                        <InputError :message="form.errors.brand_id" />
                     </div>
                 </div>
 
@@ -89,14 +97,17 @@
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.price') }}</label>
                         <input v-model="form.price" type="number" step="0.01" class="form-input" required />
+                        <InputError :message="form.errors.price" />
                     </div>
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.discount_price') }}</label>
                         <input v-model="form.discount_price" type="number" step="0.01" class="form-input" />
+                        <InputError :message="form.errors.discount_price" />
                     </div>
                     <div class="space-y-1">
                         <label class="label-dark">{{ $t('messages.stock') }}</label>
                         <input v-model="form.stock" type="number" class="form-input" required />
+                        <InputError :message="form.errors.stock" />
                     </div>
                 </div>
 
@@ -193,6 +204,7 @@ import { useForm } from '@inertiajs/vue3'
 import { watch, computed } from 'vue'
 import Modal from '@/Components/Modal.vue'
 import Dropzone from '@/Components/Dropzone.vue'
+import InputError from '@/Components/InputError.vue'
 
 const props = defineProps({
     show: Boolean,

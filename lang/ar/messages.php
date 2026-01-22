@@ -227,6 +227,10 @@ return [
     'banners_management' => 'إدارة البنرات',
     'banner' => 'البانر',
     'type' => 'النوع',
+    'no_data_found' => 'لا توجد بيانات.',
+    'metadata' => 'البيانات الوصفية',
+    'no_description' => 'لا يوجد وصف متاح.',
+    'low_stock' => 'مخزون منخفض',
 
 
 ];

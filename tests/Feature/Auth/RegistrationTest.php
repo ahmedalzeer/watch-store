@@ -18,11 +18,21 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        \App\Models\Currency::create([
+            'name' => ['en' => 'USD', 'ar' => 'USD'],
+            'code' => 'USD',
+            'symbol' => '$',
+            'exchange_rate' => 1,
+            'is_active' => true,
+        ]);
+        \Spatie\Permission\Models\Role::create(['name' => 'customer']);
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'role' => 'customer',
         ]);
 
         $this->assertAuthenticated();

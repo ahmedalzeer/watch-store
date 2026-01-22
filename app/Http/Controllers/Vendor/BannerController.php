@@ -39,6 +39,7 @@ class BannerController extends Controller
     public function index(Request $request)
     {
         $storeId = $this->getStoreId($request);
+        $this->authorizeStore($storeId);
 
         $banners = $this->bannerService->getAllBanners($storeId)->map(function ($banner) {
             return [

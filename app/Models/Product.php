@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\CreateAtHuman;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 use Spatie\MediaLibrary\HasMedia;
@@ -11,7 +12,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Product extends Model implements HasMedia
 {
-    use SoftDeletes, HasTranslations, InteractsWithMedia, CreateAtHuman;
+    use HasFactory, SoftDeletes, HasTranslations, InteractsWithMedia, CreateAtHuman;
 
     protected $fillable = [
         'store_id',
@@ -44,7 +45,7 @@ class Product extends Model implements HasMedia
 
     protected $dates = ['deleted_at'];
 
-    protected $appends = ['main_image_url'];
+    protected $appends = ['main_image_url', 'image_url'];
 
     public function store()
     {
@@ -71,5 +72,10 @@ class Product extends Model implements HasMedia
         }
 
         return $this->getFirstMediaUrl('product_gallery') ?: 'https://ui-avatars.com/api/?name=Product';
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->main_image_url;
     }
 }

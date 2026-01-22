@@ -10,7 +10,7 @@
                 </h2>
 
                 <button @click="openModal()"
-                    class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 shadow-md transition-all">
+                    class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 shadow-md transition-all active:scale-95">
                     + {{ $t('messages.create_brand') }}
                 </button>
             </div>
@@ -83,6 +83,11 @@
                                             </path>
                                         </svg></button>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr v-if="brands.data.length === 0">
+                            <td colspan="4" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                                {{ $t('messages.no_data_found') }}
                             </td>
                         </tr>
                     </tbody>

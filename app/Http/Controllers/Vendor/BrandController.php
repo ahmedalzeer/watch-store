@@ -38,6 +38,7 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         $storeId = $this->getStoreId($request);
+        $this->authorizeStore($storeId);
 
         $brands = $this->brandService->paginateBrands($storeId, $request->search);
 
