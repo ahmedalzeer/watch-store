@@ -10,6 +10,28 @@ html {
 body {
     margin: 0;
 }
+
+html,
+body {
+    scrollbar-width: none; /* لمتصفح Firefox */
+    -ms-overflow-style: none; /* لمتصفح IE و Edge القديم */
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+:root {
+    --swiper-theme-color: #7e22ce; /* اللون الأرجواني الخاص بك */
+    --swiper-navigation-size: 25px;
+}
+
+/* لجعل النقاط تبدو فخمة في كل الموقع */
+.swiper-pagination-bullet-active {
+    width: 30px !important;
+    border-radius: 5px !important;
+}
+
 main {
     display: block;
 }

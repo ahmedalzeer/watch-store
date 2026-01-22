@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Store;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -29,6 +30,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $host = $request->getHost();
+        $subdomain = explode('.', $host)[0];
+
+        $currentStore = Store::where('subdomain', $subdomain)->first();
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -39,6 +45,14 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $request->user() ? $request->user()->getRoleNames() : [],
             ],
             'csrf_token' => csrf_token(),
+            'categories' => $currentStore
+                ? \App\Models\Category::with('children')
+                ->where('store_id', $currentStore->id)
+                ->whereNull('parent_id')
+                ->get()
+                : [],
+
+            'currentStore' => $currentStore,
             'locale' => app()->getLocale(),
             'translations' => function () {
                 return [

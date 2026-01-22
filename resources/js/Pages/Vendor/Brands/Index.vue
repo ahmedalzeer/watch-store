@@ -88,6 +88,19 @@
                     </tbody>
                 </table>
             </div>
+            <div class="px-4 py-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <div class="flex flex-wrap justify-center space-x-1 rtl:space-x-reverse">
+                    <template v-for="(link, key) in brands.links" :key="key">
+                        <Link v-if="link.url" :href="link.url"
+                            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded transition-colors"
+                            :class="link.active ? 'bg-purple-600 text-white' : 'bg-white dark:bg-gray-700 dark:text-gray-300 hover:bg-purple-50'"
+                            v-html="link.label" preserve-scroll preserve-state /> <span v-else
+                            class="px-3 py-1 text-sm text-gray-400 border border-gray-300 dark:border-gray-600 rounded cursor-not-allowed"
+                            v-html="link.label">
+                        </span>
+                    </template>
+                </div>
+            </div>
         </div>
 
         <BrandModal :show="showingModal" :edit-brand="selectedBrand" :store-id="storeId" @close="showingModal = false"
@@ -98,7 +111,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import VendorLayout from '@/Layouts/VendorLayout.vue';
 import BrandModal from './BrandModal.vue';
 import BrandShow from './BrandShow.vue';

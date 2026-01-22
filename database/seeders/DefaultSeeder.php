@@ -60,6 +60,7 @@ class DefaultSeeder extends Seeder
             StoreSeeder::class,
             CategorySeeder::class,
             WatchBrandSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

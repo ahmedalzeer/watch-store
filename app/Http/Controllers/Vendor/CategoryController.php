@@ -2,44 +2,64 @@
 
 namespace App\Http\Controllers\Vendor;
 
-use App\Http\Controllers\VendorBaseController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\Vendor\CategoryService;
 use App\Http\Requests\Vendor\CategoryRequest;
+use Illuminate\Http\Request;
 
-class CategoryController extends VendorBaseController
+class CategoryController extends Controller
 {
-    public function index(Request $request)
+    protected $categoryService;
+
+    public function __construct(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
+
+    /**
+     * Get the current store ID from request or fallback to first store
+     */
+    private function getStoreId(Request $request): ?int
     {
         $firstStore = auth()->user()->stores()->first();
-        $storeId = $request->store_id ?? ($firstStore ? $firstStore->id : null);
+        return $request->store_id ?? ($firstStore ? $firstStore->id : null);
+    }
+
+    /**
+     * Check if user owns the store
+     */
+    private function authorizeStore(int $storeId): void
+    {
+        if (!auth()->user()->stores()->where('id', $storeId)->exists()) {
+            abort(403);
+        }
+    }
+
+    public function index(Request $request)
+    {
+        $storeId = $this->getStoreId($request);
 
         if (!$storeId) {
             return redirect()->route('vendor.dashboard')->with('error', 'No store found.');
         }
 
-        $categories = Category::where('store_id', $storeId)
-            ->with('parent')
-            ->when($request->search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name->ar', 'like', "%{$search}%")
-                        ->orWhere('name->en', 'like', "%{$search}%");
-                });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $categories = $this->categoryService->paginateCategories($storeId, $request->search);
+        $parentCategories = $this->categoryService->getParentCategories($storeId);
 
         return inertia('Vendor/Categories/Index', [
             'categories' => $categories,
-            'parentCategories' => Category::where('store_id', $storeId)->whereNull('parent_id')->get(),
+            'parentCategories' => $parentCategories,
             'storeId' => (int) $storeId,
         ]);
     }
 
     public function store(CategoryRequest $request)
     {
-        $category = Category::create($request->validated());
+        $storeId = $this->getStoreId($request);
+        $this->authorizeStore($storeId);
+
+        $category = $this->categoryService->store($storeId, $request->validated());
 
         if ($request->image_path) {
             $this->handleMedia($category, $request->image_path);
@@ -50,17 +70,14 @@ class CategoryController extends VendorBaseController
 
     public function update(CategoryRequest $request, Category $category)
     {
-        if ($category->store_id != $request->store_id) {
-            abort(403);
-        }
+        $storeId = $this->getStoreId($request);
+        $this->authorizeStore($storeId);
 
-        $data = $request->validated();
-
-        if (isset($data['parent_id']) && $data['parent_id'] == $category->id) {
+        try {
+            $this->categoryService->update($storeId, $category, $request->validated());
+        } catch (\InvalidArgumentException $e) {
             return redirect()->back()->withErrors(['parent_id' => __('messages.cannot_be_parent_to_self')]);
         }
-
-        $category->update($data);
 
         if ($request->filled('image_path')) {
             $category->clearMediaCollection('category_icons');
@@ -72,16 +89,17 @@ class CategoryController extends VendorBaseController
 
     public function destroy(Category $category)
     {
-        if (!auth()->user()->stores()->where('id', $category->store_id)->exists()) {
+        $storeId = auth()->user()->stores()->where('id', $category->store_id)->first()?->id;
+
+        if (!$storeId) {
             abort(403);
         }
 
-        if ($category->children()->exists()) {
+        try {
+            $this->categoryService->delete($storeId, $category);
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'cannot_delete_has_children']);
         }
-
-        $category->clearMediaCollection('category_icons');
-        $category->delete();
 
         return redirect()->back();
     }

@@ -78,6 +78,27 @@
                 </li>
 
                 <li class="relative px-6 py-3">
+                    <span v-if="route().current('vendor.banners.*')"
+                        class="absolute inset-y-0 w-1 bg-purple-600 rounded-tl-lg rounded-bl-lg"
+                        :class="$locale() === 'ar' ? 'right-0' : 'left-0'" aria-hidden="true"></span>
+
+                    <Link
+                        class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+                        :class="route().current('vendor.banners.*') ? 'text-gray-800 dark:text-gray-100' : ''"
+                        :href="route('vendor.banners.index', { store_id: selectedStoreId })">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+
+                        <span :class="$locale() === 'ar' ? 'mr-4' : 'ml-4'">{{ $t('messages.banners') }}</span>
+                    </Link>
+                </li>
+
+                <li class="relative px-6 py-3">
                     <button
                         class="inline-flex items-center justify-between w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
                         @click="isOrdersMenuOpen = !isOrdersMenuOpen">
@@ -86,7 +107,7 @@
                                 <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                             <span :class="$locale() === 'ar' ? 'mr-4' : 'ml-4'">{{ $t('messages.orders_management')
-                                }}</span>
+                            }}</span>
                         </span>
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
