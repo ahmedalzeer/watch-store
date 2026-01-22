@@ -1,93 +1,71 @@
 <template>
     <div
-        class="group relative flex flex-col bg-white dark:bg-gray-950 transition-all duration-700 overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-transparent border hover:border-gray-100 dark:hover:border-gray-800">
+        class="group bg-white rounded-sm border border-gray-100 min-h-[400px] flex flex-col transition-all duration-500 hover:shadow-2xl hover:border-transparent relative overflow-hidden">
 
-        <div class="relative aspect-[3/4] overflow-hidden bg-[#f9f9f9] dark:bg-gray-900">
-            <div v-if="product.discount_price"
-                class="absolute top-0 ltr:left-0 rtl:right-0 z-10 bg-purple-600 text-white text-[9px] font-black px-3 py-1.5 uppercase tracking-widest shadow-lg">
-                {{ calculateDiscount(product.price, product.discount_price) }}% {{ $t('messages.off') }}
-            </div>
+        <!-- Badges -->
+        <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
+            <span v-if="product.discount"
+                class="bg-red-500 text-white text-[9px] font-bold px-2 py-1 uppercase tracking-widest rounded-full">
+                -{{ product.discount }}%
+            </span>
+            <span v-if="product.is_new"
+                class="bg-blue-600 text-white text-[9px] font-bold px-2 py-1 uppercase tracking-widest rounded-full">
+                New
+            </span>
+        </div>
 
-            <img :src="product.image_url" :alt="getTranslation(product.name)"
-                class="w-full h-full object-cover transition-transform duration-[1.5s] cubic-bezier(0.4, 0, 0.2, 1) group-hover:scale-110" />
+        <!-- Product Image & Actions Overlay -->
+        <div class="relative aspect-[4/5] overflow-hidden bg-gray-50 flex items-center justify-center p-6">
+            <img :src="product.image_url" :alt="product.name"
+                class="max-h-full max-w-full object-contain transition-transform duration-1000 group-hover:scale-110">
 
+            <!-- Actions Overlay -->
             <div
-                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-end p-6 gap-3">
-                <button @click="$emit('quick-view', product)"
-                    class="w-full bg-white text-black py-3 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-purple-600 hover:text-white transition-colors transform translate-y-4 group-hover:translate-y-0 duration-500">
-                    {{ $t('messages.quick_view') }}
+                class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                <button @click="$emit('add-to-cart', product)"
+                    class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-900 shadow-xl hover:bg-black hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-75">
+                    <i class="fa fa-shopping-bag text-sm"></i>
+                </button>
+                <button @click="$emit('toggle-wishlist', product)"
+                    class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-900 shadow-xl hover:bg-red-500 hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-150">
+                    <i class="fa-regular fa-heart text-sm"></i>
                 </button>
             </div>
         </div>
 
-        <div class="p-6 flex flex-col items-center text-center space-y-3">
-            <span class="text-[9px] uppercase tracking-[0.4em] text-purple-600 font-black italic">
-                {{ getTranslation(product.brand?.name) || 'Exquisite Timepiece' }}
-            </span>
+        <!-- Content -->
+        <div class="p-6 flex flex-col items-center text-center flex-grow space-y-3">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{{ product.category?.name ||
+                'Watch' }}</span>
+            <Link :href="route('products.show', product.slug)"
+                class="text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2">
+                {{ product.name }}
+            </Link>
 
-            <h3 class="text-sm md:text-base font-serif italic text-gray-900 dark:text-white leading-tight">
-                <a :href="route('products.show', product.slug || '#')" class="hover:opacity-70 transition-opacity">
-                    {{ getTranslation(product.name) }}
-                </a>
-            </h3>
-
-            <div class="flex items-center gap-3 pt-1">
-                <span v-if="product.discount_price"
-                    class="text-[11px] text-gray-400 line-through decoration-purple-500/50">
-                    {{ product.price }}
-                </span>
-                <span class="text-base font-serif text-gray-950 dark:text-gray-100 tracking-tighter">
-                    {{ product.discount_price || product.price }}
-                    <span class="text-[9px] font-sans uppercase tracking-widest ml-1">EGP</span>
-                </span>
+            <div class="flex items-center gap-2 pt-2">
+                <span class="text-base font-black text-gray-900">${{ product.price }}</span>
+                <span v-if="product.old_price" class="text-xs text-gray-400 line-through">${{ product.old_price
+                    }}</span>
             </div>
 
-            <div class="pt-4 flex gap-6 opacity-40 group-hover:opacity-100 transition-opacity duration-500">
-                <div v-for="(spec, index) in product.specifications?.slice(0, 2)" :key="index"
-                    class="flex flex-col items-center border-x border-gray-100 dark:border-gray-800 px-4">
-                    <span class="text-[8px] text-gray-400 uppercase tracking-tighter mb-1">{{ getTranslation(spec.key)
-                    }}</span>
-                    <span class="text-[9px] font-bold text-gray-700 dark:text-gray-300">{{ getTranslation(spec.value)
-                    }}</span>
-                </div>
+            <!-- Star Rating placeholder -->
+            <div class="flex gap-1 text-[10px] text-yellow-400">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-half-alt"></i>
             </div>
         </div>
-
-        <button
-            class="w-full bg-gray-950 dark:bg-purple-800 text-white py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-purple-700 transition-colors border-t border-white/5">
-            {{ $t('messages.add_to_cart') }}
-        </button>
     </div>
 </template>
 
 <script setup>
-import { usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
-const props = defineProps({ product: Object });
-defineEmits(['quick-view']);
+defineProps({
+    product: Object
+});
 
-const page = usePage();
-
-// دالة ذكية لمعالجة الترجمة ومنع ظهور الكود الخام (JSON)
-const getTranslation = (field) => {
-    if (!field) return '';
-    const locale = page.props.locale;
-
-    // إذا كان الحقل كائن (Object) ناتج عن حزمة Translatable
-    if (typeof field === 'object') {
-        return field[locale] || field['en'] || Object.values(field)[0];
-    }
-
-    // إذا كان نصاً عادياً (Fallback)
-    try {
-        const parsed = JSON.parse(field);
-        return parsed[locale] || parsed['en'] || field;
-    } catch (e) {
-        return field;
-    }
-};
-
-const calculateDiscount = (price, discount) => {
-    return Math.round(((price - discount) / price) * 100);
-};
+defineEmits(['add-to-cart', 'toggle-wishlist']);
 </script>

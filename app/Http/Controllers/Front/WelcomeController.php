@@ -31,16 +31,14 @@ class WelcomeController extends FrontBaseController
                 ];
             });
 
-        $bestSellers = Product::with(['brand', 'media'])
+        $products = Product::with(['brand', 'media'])
             ->where('is_active', true)
-            ->orderBy('id', 'desc')
-            ->take(8)
-            ->get();
+            ->latest()
+            ->paginate(12);
 
         return inertia('FrontEnd/Welcome', [
-            'heroBanners' => $this->getBanner(),
-            'bestSellers' => $bestSellers,
-            'dynamicSections' => $dynamicSections
+            'banners' => $this->getBanner(),
+            'products' => $products,
         ]);
     }
 
