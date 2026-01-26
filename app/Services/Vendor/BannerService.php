@@ -17,6 +17,14 @@ class BannerService
     }
 
     /**
+     * Get paginated banners for a specific store
+     */
+    public function paginate(int $storeId, int $perPage = 10)
+    {
+        return $this->bannerRepository->paginateByStore($storeId, $perPage);
+    }
+
+    /**
      * Get all banners for a specific store
      */
     public function getAllBanners(int $storeId)

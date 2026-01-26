@@ -6,129 +6,58 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentGateway;
+use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Services\Store\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Inertia\Inertia;
 
 class CheckoutController extends Controller
 {
     public function index()
     {
-        $paymentGateways = PaymentGateway::with('configs')
-            ->where('is_active', 1)
-            ->get();
-
-        $paypal = $paymentGateways->firstWhere('code', 'paypal');
-        $paypalClientId = $paypal
-            ? $paypal->getConfigValue('client_id', 'sandbox')
-            : null;
+        $paymentGateways = PaymentGateway::where('is_active', 1)->get();
 
         $cart = Session::get('cart', []);
-        $subtotal = 0;
-
-        foreach ($cart as $key => $item) {
-            $product = \App\Models\Product::with(['thumbnail'])->find($item['product_id']);
-
-            $variant = isset($item['variant_id'])
-                ? ProductVariant::find($item['variant_id'])
-                : ($product->primaryVariant ?: $product->variants()->first());
-
-            $subtotal += $item['price'] * $item['quantity'];
+        
+        if (empty($cart)) {
+            return redirect()->route('cart.view')->with('error', 'Your cart is empty.');
         }
 
-        $shipping = null;
-        $total = $subtotal + ($shipping ?? 0);
+        $subtotal = collect($cart)->sum(function ($item) {
+            return $item['price'] * $item['quantity'];
+        });
 
-        return view('themes.xylo.checkout', compact('cart', 'subtotal', 'shipping', 'total', 'paymentGateways', 'paypalClientId'));
-    }
+        $shipping = 0; // Can implement shipping logic later
+        $total = $subtotal + $shipping;
 
-    public function process(Request $request)
-    {
-        $gatewayCode = $request->input('gateway');
-        $amount = 100; // you can replace this with cart total
-
-        try {
-            $paymentService = PaymentManager::make($gatewayCode, 'sandbox');
-
-            $order = $paymentService->createOrder($amount, 'USD');
-
-            return response()->json([
-                'success' => true,
-                'gateway' => $gatewayCode,
-                'order' => $order,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Payment process failed: '.$e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * PayPal success callback
-     */
-    public function paypalSuccess(Request $request, OrderService $orderService)
-    {
-        $orderId = $request->query('token'); // PayPal returns ?token=ORDER_ID
-
-        try {
-            $paypal = PaymentManager::make('paypal', 'sandbox');
-            $result = $paypal->captureOrder($orderId);
-
-            if (($result['status'] ?? null) === 'COMPLETED') {
-
-                $order = $orderService->createOrderFromPaypal($result);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Payment completed & order stored successfully.',
-                    'order_id' => $order->id,
-                    'details' => $result,
-                ]);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Payment not completed.',
-                'details' => $result,
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('PayPal success error: '.$e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * PayPal cancel callback
-     */
-    public function paypalCancel()
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Payment was cancelled by user.',
+        return Inertia::render('FrontEnd/Checkout', [
+            'cart' => $cart,
+            'subtotal' => (float)$subtotal,
+            'shipping' => (float)$shipping,
+            'total' => (float)$total,
+            'paymentGateways' => $paymentGateways,
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255',
-            'payment_method' => 'required',
+            'city' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'payment_method' => 'required|in:stripe,cod',
         ]);
 
         $cart = Session::get('cart', []);
 
         if (empty($cart)) {
-            return redirect()->back()->with('error', 'Cart is empty!');
+            return redirect()->route('cart.view')->with('error', 'Cart is empty!');
         }
 
         // Calculate total
@@ -136,13 +65,20 @@ class CheckoutController extends Controller
             return $item['price'] * $item['quantity'];
         });
 
+        // Get Store ID (from first item or default)
+        $firstItem = reset($cart);
+        $product = Product::find($firstItem['product_id']);
+        $storeId = $product->store_id;
+
         // Save Order
         $order = Order::create([
+            'store_id' => $storeId,
             'user_id' => Auth::id(),
-            'address' => $request->address,
-            'payment_method' => $request->payment_method,
-            'total' => $total,
             'status' => 'pending',
+            'total' => $total,
+            'payment_method' => $request->payment_method,
+            'payment_status' => $request->payment_method === 'cod' ? 'pending' : 'pending', // Both pending initially
+            'shipping_details' => $request->only(['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'country']),
         ]);
 
         // Save Order Items
@@ -153,13 +89,17 @@ class CheckoutController extends Controller
                 'variant_id' => $item['variant_id'] ?? null,
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
-                'attributes' => json_encode($item['attributes']),
             ]);
         }
 
         // Clear the session cart
         Session::forget('cart');
 
-        return redirect()->route('thankyou')->with('success', 'Order placed successfully!');
+        if ($request->payment_method === 'stripe') {
+            // Redirect to stripe payment process or return client secret
+            return redirect()->route('stripe.checkout.process', ['order_id' => $order->id]);
+        }
+
+        return redirect()->route('welcome')->with('success', 'Order placed successfully! (Cash on Delivery)');
     }
 }

@@ -52,10 +52,11 @@
                             </td>
                             <td class="px-4 py-3 text-sm">
                                 <div class="flex flex-col">
-                                    <span :class="{ 'text-red-500 line-through text-xs': product.discount_price }">
+                                    <span
+                                        :class="{ 'text-red-500 line-through text-xs': product.discount_price !== null }">
                                         {{ product.price }}
                                     </span>
-                                    <span v-if="product.discount_price" class="text-green-600 font-bold">
+                                    <span v-if="product.discount_price !== null" class="text-green-600 font-bold">
                                         {{ product.discount_price }}
                                     </span>
                                 </div>
@@ -127,18 +128,7 @@
             </div>
 
             <div class="px-4 py-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                <div class="flex flex-wrap justify-center space-x-1 rtl:space-x-reverse">
-                    <template v-for="(link, key) in products.links" :key="key">
-                        <Link v-if="link.url" :href="link.url"
-                            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded transition-colors"
-                            :class="link.active ? 'bg-purple-600 text-white' : 'bg-white dark:bg-gray-700 dark:text-gray-300 hover:bg-purple-50'"
-                            v-html="link.label" preserve-scroll preserve-state />
-                        <span v-else
-                            class="px-3 py-1 text-sm text-gray-400 border border-gray-300 dark:border-gray-600 rounded cursor-not-allowed"
-                            v-html="link.label">
-                        </span>
-                    </template>
-                </div>
+                <Pagination :links="products.links" />
             </div>
         </div>
 
@@ -155,11 +145,12 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import VendorLayout from '@/Layouts/VendorLayout.vue';
 import ProductModal from './ProductModal.vue';
 import ProductShow from './ProductShow.vue';
 import ProductSpecsModal from './ProductSpecsModal.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { useAlert } from '@/useAlert';
 
 const props = defineProps({

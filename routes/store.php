@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/shop', [ProductController::class, 'index'])->name('shop.index');
 Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/api/product/{product:slug}/quick-view', [ProductController::class, 'getQuickView'])->name('products.quick-view');
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::post('/change-currency', [CurrencyController::class, 'changeCurrency'])->name('change.currency');

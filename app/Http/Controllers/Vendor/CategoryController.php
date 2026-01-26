@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Store;
 use App\Services\Vendor\CategoryService;
 use App\Http\Requests\Vendor\CategoryRequest;
 use Illuminate\Http\Request;
@@ -18,66 +19,94 @@ class CategoryController extends Controller
     }
 
     /**
-     * Get the current store ID from request or fallback to first store
+     * Verify that the vendor owns the store
      */
-    private function getStoreId(Request $request): ?int
+    private function authorizeStore(Store $store): void
     {
-        $firstStore = auth()->user()->stores()->first();
-        return $request->store_id ?? ($firstStore ? $firstStore->id : null);
+        if ($store->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
     }
 
     /**
-     * Check if user owns the store
+     * Verify that the category belongs to the store
      */
-    private function authorizeStore(int $storeId): void
+    private function authorizeCategory(Category $category, Store $store): void
     {
-        if (!auth()->user()->stores()->where('id', $storeId)->exists()) {
-            abort(403);
+        if ($category->store_id !== $store->id) {
+            abort(404);
         }
     }
 
-    public function index(Request $request)
+    public function index(Request $request, Store $store)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId); // Enforce authorization
+        $this->authorizeStore($store);
 
-        if (!$storeId) {
-            return redirect()->route('vendor.dashboard')->with('error', 'No store found.');
-        }
-
-        $categories = $this->categoryService->paginateCategories($storeId, $request->search);
-        $parentCategories = $this->categoryService->getParentCategories($storeId);
+        $categories = $this->categoryService->paginateCategories($store->id, $request->search);
+        $parentCategories = $this->categoryService->getParentCategories($store->id);
 
         return inertia('Vendor/Categories/Index', [
             'categories' => $categories,
             'parentCategories' => $parentCategories,
-            'storeId' => (int) $storeId,
+            'store' => $store,
         ]);
     }
 
-    public function store(CategoryRequest $request)
+    public function create(Request $request, Store $store)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
 
-        $category = $this->categoryService->store($storeId, $request->validated());
+        return inertia('Vendor/Categories/Create', [
+            'store' => $store,
+            'parentCategories' => $this->categoryService->getParentCategories($store->id),
+        ]);
+    }
+
+    public function store(CategoryRequest $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $category = $this->categoryService->store($store->id, $request->validated());
 
         if ($request->image_path) {
             $this->handleMedia($category, $request->image_path);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.categories.show', ['store' => $store, 'category' => $category]);
     }
 
-    public function update(CategoryRequest $request, Category $category)
+    public function show(Request $request, Store $store, Category $category)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
+        $this->authorizeCategory($category, $store);
+
+        return inertia('Vendor/Categories/Show', [
+            'category' => $category,
+            'store' => $store,
+        ]);
+    }
+
+    public function edit(Request $request, Store $store, Category $category)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeCategory($category, $store);
+
+        return inertia('Vendor/Categories/Edit', [
+            'category' => $category,
+            'parentCategories' => $this->categoryService->getParentCategories($store->id),
+            'store' => $store,
+        ]);
+    }
+
+    public function update(CategoryRequest $request, Store $store, Category $category)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeCategory($category, $store);
 
         try {
-            $this->categoryService->update($storeId, $category, $request->validated());
+            $this->categoryService->update($store->id, $category, $request->validated());
         } catch (\InvalidArgumentException $e) {
-            return redirect()->back()->withErrors(['parent_id' => __('messages.cannot_be_parent_to_self')]);
+            return redirect()->back()->withErrors(['parent_id' => 'Cannot set category as parent to itself']);
         }
 
         if ($request->filled('image_path')) {
@@ -85,24 +114,21 @@ class CategoryController extends Controller
             $this->handleMedia($category, $request->image_path);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.categories.show', ['store' => $store, 'category' => $category]);
     }
 
-    public function destroy(Category $category)
+    public function destroy(Request $request, Store $store, Category $category)
     {
-        $storeId = auth()->user()->stores()->where('id', $category->store_id)->first()?->id;
-
-        if (!$storeId) {
-            abort(403);
-        }
+        $this->authorizeStore($store);
+        $this->authorizeCategory($category, $store);
 
         try {
-            $this->categoryService->delete($storeId, $category);
+            $this->categoryService->delete($store->id, $category);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'cannot_delete_has_children']);
+            return redirect()->back()->withErrors(['error' => 'Cannot delete category with sub-categories']);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.categories.index', ['store' => $store]);
     }
 
     private function handleMedia(Category $category, string $path)

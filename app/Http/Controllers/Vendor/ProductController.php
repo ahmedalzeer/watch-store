@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Store;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Services\Vendor\ProductService;
@@ -20,45 +21,56 @@ class ProductController extends Controller
     }
 
     /**
-     * Get the current store ID from request or fallback to first store
+     * Verify that the vendor owns the store
      */
-    private function getStoreId(Request $request): int
+    private function authorizeStore(Store $store): void
     {
-        return $request->store_id ?? auth()->user()->stores()->first()->id;
-    }
-
-    /**
-     * Check if user owns the store
-     */
-    private function authorizeStore(int $storeId): void
-    {
-        if (!auth()->user()->stores()->where('id', $storeId)->exists()) {
-            abort(403);
+        if ($store->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
         }
     }
 
-    public function index(Request $request)
+    /**
+     * Verify that the product belongs to the store
+     */
+    private function authorizeProduct(Product $product, Store $store): void
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        if ($product->store_id !== $store->id) {
+            abort(404);
+        }
+    }
 
-        $products = $this->productService->paginateProducts($storeId, $request->only(['search']));
+    public function index(Request $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $products = $this->productService->paginateProducts($store->id, $request->only(['search']));
 
         return inertia('Vendor/Products/Index', [
             'products' => $products,
-            'categories' => Category::where('store_id', $storeId)->get(),
-            'brands' => Brand::where('store_id', $storeId)->get(),
-            'storeId' => (int) $storeId,
+            'categories' => Category::where('store_id', $store->id)->get(),
+            'brands' => Brand::where('store_id', $store->id)->get(),
+            'store' => $store,
             'filters' => $request->only(['search'])
         ]);
     }
 
-    public function store(ProductRequest $request)
+    public function create(Request $request, Store $store)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
 
-        $product = $this->productService->store($storeId, $request->validated());
+        return inertia('Vendor/Products/Create', [
+            'store' => $store,
+            'categories' => Category::where('store_id', $store->id)->get(),
+            'brands' => Brand::where('store_id', $store->id)->get(),
+        ]);
+    }
+
+    public function store(ProductRequest $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $product = $this->productService->store($store->id, $request->validated());
 
         if ($request->has('image_paths')) {
             foreach ($request->image_paths as $path) {
@@ -66,61 +78,60 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.products.show', ['store' => $store, 'product' => $product]);
     }
 
-    public function update(ProductRequest $request, Product $product)
+    public function show(Request $request, Store $store, Product $product)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
+        $this->authorizeProduct($product, $store);
+
+        return inertia('Vendor/Products/Show', [
+            'product' => $product->load('variants', 'reviews'),
+            'store' => $store,
+        ]);
+    }
+
+    public function edit(Request $request, Store $store, Product $product)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeProduct($product, $store);
+
+        return inertia('Vendor/Products/Edit', [
+            'product' => $product->load('variants'),
+            'categories' => Category::where('store_id', $store->id)->get(),
+            'brands' => Brand::where('store_id', $store->id)->get(),
+            'store' => $store,
+        ]);
+    }
+
+    public function update(ProductRequest $request, Store $store, Product $product)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeProduct($product, $store);
 
         if ($request->has('update_specs_only')) {
             $product->update([
                 'specifications' => $request->specifications
             ]);
-            return redirect()->back();
+            return redirect()->route('vendor.products.edit', ['store' => $store, 'product' => $product]);
         }
 
-        $this->productService->update($storeId, $product, $request->validated());
+        $this->productService->update($store->id, $product, $request->validated());
 
         if ($request->filled('image_paths')) {
-            $product->clearMediaCollection('product_gallery'); // Clear existing or handle appending based on logic. 
-            // Original controller cleared if image_paths was filled? 
-            // Actually original controller logic was: if filled image_paths, loop and handle. 
-            // But it didn't explicitly clear everything unless intended.
-            // Let's look at original logic: it didn't clear. It just added.
-            // But usually update replaces images or appends.
-            // The original code:
-            // if ($request->filled('image_paths')) { foreach... handleMedia }
-            // It didn't clear. But standard update often implies replacing gallery or managing it.
-            // I'll stick to appending for now to be safe, or check if I should clear.
-            // "Banner" and "Brand" cleared collection. Product might be different.
-            // let's stick to appending/adding for now as "handling" might check existence.
-            // Re-reading original ProductController:
-            // "if ($request->filled('image_paths')) { foreach... handleMedia ... }"
-            // It seems it just adds.
-            // However, typical behavior for a gallery update from a form that sends all current images is to replace.
-            // If the form sends ONLY new images, then append.
-            // Given I don't see "clear" in original, I will assume append or checking existence.
-            
-            // Wait, looking at original again. It didn't clear. 
-            // BUT, `ProductRepository` update method HAD:
-            // "if (isset($data['image_url'])... delete old, add new" (for single image logic which seemed unused or legacy).
-            // The Controller used `addMedia`.
-            
-            // I will use `handleMedia` which checks if file exists.
             foreach ($request->image_paths as $path) {
                 $this->handleMedia($product, $path, 'product_gallery');
             }
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.products.show', ['store' => $store, 'product' => $product]);
     }
 
-    public function setMainImage(Product $product, $mediaId)
+    public function setMainImage(Request $request, Store $store, Product $product, $mediaId)
     {
-        $storeId = auth()->user()->stores()->where('id', $product->store_id)->first()?->id;
-        if (!$storeId) abort(403);
+        $this->authorizeStore($store);
+        $this->authorizeProduct($product, $store);
 
         $product->getMedia('product_gallery')->each(function ($media) {
             $media->setCustomProperty('is_main', false);
@@ -136,17 +147,14 @@ class ProductController extends Controller
         return back();
     }
 
-    public function destroy(Product $product)
+    public function destroy(Request $request, Store $store, Product $product)
     {
-        $storeId = auth()->user()->stores()->where('id', $product->store_id)->first()?->id;
+        $this->authorizeStore($store);
+        $this->authorizeProduct($product, $store);
 
-        if (!$storeId) {
-            abort(403);
-        }
+        $this->productService->delete($store->id, $product);
 
-        $this->productService->delete($storeId, $product);
-
-        return redirect()->back();
+        return redirect()->route('vendor.products.index', ['store' => $store]);
     }
 
     private function handleMedia(Product $product, string $path, string $collection, bool $isMain = false)

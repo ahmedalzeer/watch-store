@@ -5,8 +5,18 @@ namespace App\Repositories\Vendor\Banner;
 use App\Models\Banner;
 use Illuminate\Support\Collection;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+
 class BannerRepository implements BannerRepositoryInterface
 {
+    public function paginateByStore(int $storeId, int $perPage = 10): LengthAwarePaginator
+    {
+        return Banner::where('store_id', $storeId)
+            ->with(['media'])
+            ->orderBy('order', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
 
     public function getAllBannersByStore(int $storeId): Collection
     {

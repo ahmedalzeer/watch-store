@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Models\Store;
 use App\Services\Vendor\BrandService;
 use App\Http\Requests\Vendor\BrandRequest;
 use Illuminate\Http\Request;
@@ -18,76 +19,104 @@ class BrandController extends Controller
     }
 
     /**
-     * Get the current store ID from request or fallback to first store
+     * Verify that the vendor owns the store
      */
-    private function getStoreId(Request $request): int
+    private function authorizeStore(Store $store): void
     {
-        return $request->store_id ?? auth()->user()->stores()->first()->id;
-    }
-
-    /**
-     * Check if user owns the store
-     */
-    private function authorizeStore(int $storeId): void
-    {
-        if (!auth()->user()->stores()->where('id', $storeId)->exists()) {
-            abort(403);
+        if ($store->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
         }
     }
 
-    public function index(Request $request)
+    /**
+     * Verify that the brand belongs to the store
+     */
+    private function authorizeBrand(Brand $brand, Store $store): void
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        if ($brand->store_id !== $store->id) {
+            abort(404);
+        }
+    }
 
-        $brands = $this->brandService->paginateBrands($storeId, $request->search);
+    public function index(Request $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $brands = $this->brandService->paginateBrands($store->id, $request->search);
 
         return inertia('Vendor/Brands/Index', [
             'brands' => $brands,
-            'storeId' => (int) $storeId,
+            'store' => $store,
         ]);
     }
 
-    public function store(BrandRequest $request)
+    public function create(Request $request, Store $store)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
 
-        $brand = $this->brandService->store($storeId, $request->validated());
+        return inertia('Vendor/Brands/Create', [
+            'store' => $store,
+        ]);
+    }
+
+    public function store(BrandRequest $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $brand = $this->brandService->store($store->id, $request->validated());
 
         if ($request->image_path) {
             $this->handleMedia($brand, $request->image_path);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.brands.show', ['store' => $store, 'brand' => $brand]);
     }
 
-    public function update(BrandRequest $request, Brand $brand)
+    public function show(Request $request, Store $store, Brand $brand)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
+        $this->authorizeBrand($brand, $store);
 
-        $this->brandService->update($storeId, $brand, $request->validated());
+        return inertia('Vendor/Brands/Show', [
+            'brand' => $brand,
+            'store' => $store,
+        ]);
+    }
+
+    public function edit(Request $request, Store $store, Brand $brand)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeBrand($brand, $store);
+
+        return inertia('Vendor/Brands/Edit', [
+            'brand' => $brand,
+            'store' => $store,
+        ]);
+    }
+
+    public function update(BrandRequest $request, Store $store, Brand $brand)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeBrand($brand, $store);
+
+        $this->brandService->update($store->id, $brand, $request->validated());
 
         if ($request->filled('image_path')) {
             $brand->clearMediaCollection('brand_logos');
             $this->handleMedia($brand, $request->image_path);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.brands.show', ['store' => $store, 'brand' => $brand]);
     }
 
-    public function destroy(Brand $brand)
+    public function destroy(Request $request, Store $store, Brand $brand)
     {
-        $storeId = auth()->user()->stores()->where('id', $brand->store_id)->first()?->id;
+        $this->authorizeStore($store);
+        $this->authorizeBrand($brand, $store);
 
-        if (!$storeId) {
-            abort(403);
-        }
+        $this->brandService->delete($store->id, $brand);
 
-        $this->brandService->delete($storeId, $brand);
-
-        return redirect()->back();
+        return redirect()->route('vendor.brands.index', ['store' => $store]);
     }
 
     private function handleMedia(Brand $brand, string $path)

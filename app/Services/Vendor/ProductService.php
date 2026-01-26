@@ -3,6 +3,7 @@
 namespace App\Services\Vendor;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Repositories\Vendor\Product\ProductRepositoryInterface;
 use Illuminate\Support\Str;
 
@@ -41,20 +42,24 @@ class ProductService
             'category_id' => $data['category_id'],
             'brand_id' => $data['brand_id'] ?? null,
             'price' => $data['price'],
-            'compare_price' => $data['compare_price'] ?? null,
-            'cost_price' => $data['cost_price'] ?? null,
+            'discount_price' => $data['discount_price'] ?? null,
             'sku' => $this->generateSku($storeId, $data['sku'] ?? null),
-            'barcode' => $data['barcode'] ?? null,
-            'track_quantity' => $data['track_quantity'] ?? true,
             'stock' => $data['stock'] ?? 0,
+            'condition' => $data['condition'] ?? 'new',
             'is_active' => $data['is_active'] ?? true,
             'main_menu' => $data['main_menu'] ?? false,
             'main_store' => $data['main_store'] ?? false,
-            'is_featured' => $data['is_featured'] ?? false,
-            'slug' => $this->generateSlug($data['name']['en'] ?? $data['name']['ar']),
+            'specifications' => $data['specifications'] ?? [],
+            'slug' => $data['slug'] ?? $this->generateSlug($data['name']['en'] ?? $data['name']['ar']),
         ];
 
-        return $this->productRepository->create($productData);
+        $product = $this->productRepository->create($productData);
+
+        if (isset($data['variants'])) {
+            $this->syncVariants($product, $data['variants']);
+        }
+
+        return $product;
     }
 
     /**
@@ -78,21 +83,79 @@ class ProductService
             'category_id' => $data['category_id'],
             'brand_id' => $data['brand_id'] ?? null,
             'price' => $data['price'],
-            'compare_price' => $data['compare_price'] ?? null,
-            'cost_price' => $data['cost_price'] ?? null,
-            'barcode' => $data['barcode'] ?? null,
-            'track_quantity' => $data['track_quantity'] ?? true,
+            'discount_price' => $data['discount_price'] ?? null,
             'stock' => $data['stock'] ?? 0,
             'is_active' => $data['is_active'] ?? true,
             'main_menu' => $data['main_menu'] ?? false,
             'main_store' => $data['main_store'] ?? false,
-            'is_featured' => $data['is_featured'] ?? false,
+            'specifications' => $data['specifications'] ?? [],
+            'condition' => $data['condition'] ?? $product->condition,
         ];
 
-        // Only update slug/sku if needed, logic can be added here
-        // For now, keeping slug/sku updates restricted or manual if needed to avoid breaking links
+        if (isset($data['slug'])) {
+            $updateData['slug'] = $data['slug'];
+        }
 
-        return $this->productRepository->update($product, $updateData);
+        $product = $this->productRepository->update($product, $updateData);
+
+        if (isset($data['variants'])) {
+            $this->syncVariants($product, $data['variants']);
+        }
+
+        return $product;
+    }
+
+    /**
+     * Sync variations for a product
+     */
+    public function syncVariants(Product $product, array $variants)
+    {
+        $existingVariantIds = $product->variants()->pluck('id')->toArray();
+        $receivedVariantIds = collect($variants)->pluck('id')->filter()->toArray();
+
+        // Delete variants that are not in the new list
+        $toDelete = array_diff($existingVariantIds, $receivedVariantIds);
+        if (!empty($toDelete)) {
+            ProductVariant::whereIn('id', $toDelete)->forceDelete();
+        }
+
+        $totalVariantStock = 0;
+
+        foreach ($variants as $index => $variantData) {
+            $variant = null;
+            if (isset($variantData['id'])) {
+                $variant = ProductVariant::find($variantData['id']);
+            }
+
+            $variantStock = (int) ($variantData['stock'] ?? 0);
+            $totalVariantStock += $variantStock;
+
+            $updateOrNewData = [
+                'product_id' => $product->id,
+                'sku' => $variantData['sku'] ?? $product->sku . '-' . ($index + 1),
+                'price' => $variantData['price'] ?? $product->price,
+                'discount_price' => $variantData['discount_price'] ?? null,
+                'stock' => $variantStock,
+                'is_primary' => $index === 0,
+                'is_active' => $variantData['is_active'] ?? true,
+            ];
+
+            if ($variant) {
+                $variant->update($updateOrNewData);
+            } else {
+                $variant = ProductVariant::create($updateOrNewData);
+            }
+
+            // Sync attribute values
+            if (isset($variantData['attribute_value_ids'])) {
+                $variant->attributeValues()->sync($variantData['attribute_value_ids']);
+            }
+        }
+
+        // Update product stock to be total of all variant stocks
+        if (count($variants) > 0) {
+            $product->update(['stock' => $totalVariantStock]);
+        }
     }
 
     /**

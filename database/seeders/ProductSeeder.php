@@ -20,15 +20,32 @@ class ProductSeeder extends Seeder
             return;
         }
 
-        $watchData = [
-            ['en' => 'Rolex Submariner', 'ar' => 'رولكس صب مارينر'],
-            ['en' => 'Omega Speedmaster', 'ar' => 'أوميغا سبيد ماستر'],
-            ['en' => 'Patek Philippe Nautilus', 'ar' => 'باتيك فيليب نوتيلوس'],
-            ['en' => 'Audemars Piguet Royal Oak', 'ar' => 'أوديمار بيغيه رويال أوك'],
-            ['en' => 'Hublot Big Bang', 'ar' => 'هوبلو بيج بانج'],
-            ['en' => 'Tag Heuer Carrera', 'ar' => 'تاغ هوير كاريرا'],
-            ['en' => 'Cartier Santos', 'ar' => 'كارتييه سانتوس'],
-            ['en' => 'Tudor Black Bay', 'ar' => 'تودور بلاك باي'],
+        $watchModels = [
+            'Rolex' => [
+                ['en' => 'Submariner Date', 'ar' => 'صب مارينر ديت', 'price' => 15000, 'img' => 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=800'],
+                ['en' => 'Daytona Cosmograph', 'ar' => 'دويتونا كوزموغراف', 'price' => 35000, 'img' => 'https://images.unsplash.com/photo-1524592091214-8c9fc4854593?q=80&w=800'],
+                ['en' => 'Datejust 41', 'ar' => 'ديت جست ٤١', 'price' => 12000, 'img' => 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=800'],
+            ],
+            'Omega' => [
+                ['en' => 'Speedmaster Professional', 'ar' => 'سبيد ماستر بروفيشينال', 'price' => 7000, 'img' => 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?q=80&w=800'],
+                ['en' => 'Seamaster Diver 300M', 'ar' => 'سي ماستر دايفر ٣٠٠ م', 'price' => 5500, 'img' => 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=800'],
+            ],
+            'Seiko' => [
+                ['en' => 'Prospex Turtle', 'ar' => 'بروسبكس تيرتل', 'price' => 500, 'img' => 'https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?q=80&w=800'],
+                ['en' => 'Presage Cocktail Time', 'ar' => 'بريسادج كوكتيل تايم', 'price' => 450, 'img' => 'https://images.unsplash.com/photo-1619134704035-9e190d01c720?q=80&w=800'],
+            ],
+            'Tissot' => [
+                ['en' => 'PRX Powermatic 80', 'ar' => 'بي آر إكس باورماتيك ٨٠', 'price' => 650, 'img' => 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=800'],
+                ['en' => 'Le Locle Automatic', 'ar' => 'لي لوكل أوتوماتيك', 'price' => 600, 'img' => 'https://images.unsplash.com/photo-1508685096489-7a68fb03a5b9?q=80&w=800'],
+            ],
+            'Casio' => [
+                ['en' => 'G-Shock GA-2100', 'ar' => 'جي شوك GA-2100', 'price' => 110, 'img' => 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?q=80&w=800'],
+                ['en' => 'Classic Digital A168W', 'ar' => 'كلاسيك ديجيتال A168W', 'price' => 50, 'img' => 'https://images.unsplash.com/photo-1614704372431-76619a9a5f45?q=80&w=800'],
+            ],
+            'TAG Heuer' => [
+                ['en' => 'Carrera Chronograph', 'ar' => 'كاريرا كرونوغراف', 'price' => 6000, 'img' => 'https://images.unsplash.com/photo-1585123334904-845d60e97b29?q=80&w=800'],
+                ['en' => 'Monaco Gulf Edition', 'ar' => 'موناكو غلف إيديشن', 'price' => 7500, 'img' => 'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=800'],
+            ],
         ];
 
         foreach ($stores as $store) {
@@ -36,72 +53,74 @@ class ProductSeeder extends Seeder
             $brands = Brand::where('store_id', $store->id)->get();
 
             if ($categories->isEmpty() || $brands->isEmpty()) {
-                $this->command->warn("Store ID: {$store->id} has no categories or brands. Skipping.");
                 continue;
             }
 
-            for ($i = 0; $i < 5; $i++) {
-                $watch = $watchData[array_rand($watchData)];
-                $price = rand(5000, 50000);
-                $nameEn = $watch['en'] . ' ' . Str::random(3);
+            foreach ($brands as $brand) {
+                $brandNameEn = $brand->getTranslation('name', 'en');
+                if (!isset($watchModels[$brandNameEn])) continue;
 
-                $product = Product::create([
-                    'store_id' => $store->id,
-                    'category_id' => $categories->random()->id,
-                    'brand_id' => $brands->random()->id,
-                    'name' => [
-                        'ar' => $watch['ar'] . ' ' . ($i + 1),
-                        'en' => $nameEn,
-                    ],
-                    'description' => [
-                        'ar' => 'هذا الوصف تجريبي لساعة فاخرة متوفرة في متجرنا بأسعار تنافسية.',
-                        'en' => 'This is a luxury watch description available in our store with competitive prices.',
-                    ],
-                    'slug' => Str::slug($nameEn) . '-' . uniqid(),
-                    'sku' => 'SKU-' . $store->id . '-' . strtoupper(Str::random(5)),
-                    'price' => $price,
-                    'discount_price' => rand(0, 1) ? ($price * 0.85) : null,
-                    'stock' => rand(0, 50),
+                foreach ($watchModels[$brandNameEn] as $modelData) {
+                    $nameEn = $brandNameEn . ' ' . $modelData['en'];
+                    $nameAr = $brand->getTranslation('name', 'ar') . ' ' . $modelData['ar'];
 
-                    'specifications' => [
-                        [
-                            'key' => ['en' => 'Material', 'ar' => 'المادة'],
-                            'value' => ['en' => 'Gold and Stainless Steel', 'ar' => 'ذهب وفولاذ مقاوم للصدأ']
+                    $product = Product::create([
+                        'store_id' => $store->id,
+                        'category_id' => $categories->random()->id,
+                        'brand_id' => $brand->id,
+                        'name' => [
+                            'ar' => $nameAr,
+                            'en' => $nameEn,
                         ],
-                        [
-                            'key' => ['en' => 'Glass', 'ar' => 'الزجاج'],
-                            'value' => ['en' => 'Scratch-resistant Sapphire', 'ar' => 'ياقوت مقاوم للخدش']
+                        'description' => [
+                            'ar' => "استمتع بالأناقة المطلقة مع ساعة {$nameAr}. تتميز بتصميم كلاسيكي خالد مع حرفية عالية الجودة وأداء استثنائي.",
+                            'en' => "Experience ultimate elegance with the {$nameEn}. Featuring a timeless classic design with high-quality craftsmanship and exceptional performance.",
                         ],
-                        [
-                            'key' => ['en' => 'Water Resistance', 'ar' => 'مقاومة الماء'],
-                            'value' => ['en' => '100 Meters', 'ar' => '100 متر']
+                        'slug' => Str::slug($nameEn) . '-' . $store->id,
+                        'sku' => strtoupper($brandNameEn) . '-' . rand(1000, 9999),
+                        'price' => $modelData['price'],
+                        'discount_price' => rand(0, 1) ? ($modelData['price'] * 0.9) : null,
+                        'stock' => rand(5, 50),
+                        'specifications' => [
+                            ['key' => ['en' => 'Case Material', 'ar' => 'مادة الهيكل'], 'value' => ['en' => 'Stainless Steel / Gold', 'ar' => 'فولاذ مقاوم للصدأ / ذهب']],
+                            ['key' => ['en' => 'Movement', 'ar' => 'نوع الحركة'], 'value' => ['en' => 'Swiss Automatic', 'ar' => 'أوتوماتيك سويسري']],
+                            ['key' => ['en' => 'Water Resistance', 'ar' => 'مقاومة الماء'], 'value' => ['en' => '100m / 330ft', 'ar' => '١٠٠ متر']],
+                            ['key' => ['en' => 'Crystal', 'ar' => 'الزجاج'], 'value' => ['en' => 'Scratch-Resistant Sapphire', 'ar' => 'ياقوت مقاوم للخدش']],
                         ],
-                        [
-                            'key' => ['en' => 'Movement', 'ar' => 'نوع الحركة'],
-                            'value' => ['en' => 'Automatic', 'ar' => 'أوتوماتيك']
-                        ]
-                    ],
+                        'is_active' => true,
+                    ]);
 
-                    'is_active' => true,
-                    'main_menu' => (bool)rand(0, 1),
-                    'main_store' => (bool)rand(0, 1),
-                    'condition' => ['new', 'used', 'refurbished'][rand(0, 2)],
-                ]);
-
-                try {
-                    for ($j = 0; $j < 3; $j++) {
-                        $product->addMediaFromUrl("https://picsum.photos/seed/" . Str::random(5) . "/800/800")
-                            ->withCustomProperties([
-                                'is_main' => ($j === 0)
-                            ])
+                    try {
+                        $product->addMediaFromUrl($modelData['img'])
+                            ->withCustomProperties(['is_main' => true])
                             ->toMediaCollection('product_gallery');
+                            
+                        // Add some extra random watch images
+                        $product->addMediaFromUrl($modelData['img'])
+                            ->toMediaCollection('product_gallery');
+
+                        // ADD REVIEWS
+                        $customers = \App\Models\User::role('customer')->get();
+                        foreach ($customers->random(rand(2, 5)) as $customer) {
+                            \App\Models\ProductReview::create([
+                                'product_id' => $product->id,
+                                'user_id' => $customer->id,
+                                'rating' => rand(4, 5),
+                                'review' => [
+                                    'en' => 'Amazing watch! The quality is top-notch and it looks even better in person.',
+                                    'ar' => 'ساعة مذهلة! الجودة ممتازة وتبدو أفضل بكثير في الحقيقة.'
+                                ][rand(0, 1) ? 'en' : 'ar'], // Simple random toggle for now
+                                'is_approved' => true,
+                            ]);
+                        }
+
+                    } catch (\Exception $e) {
+                        $this->command->warn("Media upload failed for product: " . $product->slug);
                     }
-                } catch (\Exception $e) {
-                    $this->command->warn("Could not upload images for product: " . $product->slug . ". Check your internet connection.");
                 }
             }
         }
 
-        $this->command->info('products table seeded successfully with translated specifications.');
+        $this->command->info('Products seeded with realistic watch data.');
     }
 }

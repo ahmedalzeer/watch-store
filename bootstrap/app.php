@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            \App\Http\Middleware\StoreLocaleMiddleware::class,
+            \App\Http\Middleware\StoreHeadersMiddleware::class,
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
@@ -22,8 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'auth.customer' => \App\Http\Middleware\AuthenticateCustomer::class,
+            'check.permission' => \App\Http\Middleware\CheckPermission::class,
+            'check.role' => \App\Http\Middleware\CheckRole::class,
         ]);
     })
+    ->withProviders([
+        \App\Providers\VendorServiceProvider::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

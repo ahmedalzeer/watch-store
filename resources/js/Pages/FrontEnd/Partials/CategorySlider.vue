@@ -3,9 +3,9 @@
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                 <div class="space-y-4 rtl:text-right">
-                    <span class="text-blue-600 font-bold uppercase tracking-[0.3em] text-[10px]">Categories</span>
+                    <span class="text-blue-600 font-bold uppercase tracking-[0.3em] text-[10px]">{{ $t('messages.categories') }}</span>
                     <h2 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                        Explore Popular
+                        {{ $t('messages.explore_popular') }}
                     </h2>
                 </div>
                 <!-- Controls -->
@@ -42,7 +42,7 @@
                                 class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div
                                     class="bg-white px-6 py-2 shadow-2xl rounded-full text-[10px] font-bold uppercase tracking-widest text-black transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                    Explore
+                                    {{ $t('messages.explore') }}
                                 </div>
                             </div>
                         </div>

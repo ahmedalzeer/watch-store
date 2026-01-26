@@ -11,7 +11,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getAllByStore(int $storeId): Collection
     {
         return Product::where('store_id', $storeId)
-            ->with(['category', 'brand', 'media'])
+            ->with(['category', 'brand', 'media', 'variants.attributeValues.attribute'])
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -19,7 +19,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function paginateByStore(int $storeId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         return Product::where('store_id', $storeId)
-            ->with(['category', 'brand', 'media'])
+            ->with(['category', 'brand', 'media', 'variants.attributeValues.attribute'])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name->ar', 'like', "%{$search}%")

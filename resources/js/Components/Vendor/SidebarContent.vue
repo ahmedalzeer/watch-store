@@ -78,6 +78,26 @@
                 </li>
 
                 <li class="relative px-6 py-3">
+                    <span v-if="route().current('vendor.variants.*')"
+                        class="absolute inset-y-0 w-1 bg-purple-600 rounded-tl-lg rounded-bl-lg"
+                        :class="$locale() === 'ar' ? 'right-0' : 'left-0'" aria-hidden="true"></span>
+
+                    <Link
+                        class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+                        :class="route().current('vendor.variants.*') ? 'text-gray-800 dark:text-gray-100' : ''"
+                        :href="route('vendor.variants.index', { store_id: selectedStoreId })">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+
+                        <span :class="$locale() === 'ar' ? 'mr-4' : 'ml-4'">{{ $t('messages.variants') }}</span>
+                    </Link>
+                </li>
+
+                <li class="relative px-6 py-3">
                     <span v-if="route().current('vendor.banners.*')"
                         class="absolute inset-y-0 w-1 bg-purple-600 rounded-tl-lg rounded-bl-lg"
                         :class="$locale() === 'ar' ? 'right-0' : 'left-0'" aria-hidden="true"></span>
@@ -99,39 +119,34 @@
                 </li>
 
                 <li class="relative px-6 py-3">
-                    <button
-                        class="inline-flex items-center justify-between w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                        @click="isOrdersMenuOpen = !isOrdersMenuOpen">
-                        <span class="inline-flex items-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                            </svg>
-                            <span :class="$locale() === 'ar' ? 'mr-4' : 'ml-4'">{{ $t('messages.orders_management')
-                            }}</span>
-                        </span>
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd"></path>
+                    <span v-if="route().current('vendor.orders.*')"
+                        class="absolute inset-y-0 w-1 bg-purple-600 rounded-tl-lg rounded-bl-lg"
+                        :class="$locale() === 'ar' ? 'right-0' : 'left-0'" aria-hidden="true"></span>
+                    <Link
+                        class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+                        :class="route().current('vendor.orders.*') ? 'text-gray-800 dark:text-gray-100' : ''"
+                        :href="route('vendor.orders.index', { store_id: selectedStoreId })">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                    </button>
-                    <transition enter-active-class="transition-all ease-in-out duration-300"
-                        enter-from-class="opacity-25 max-h-0" enter-to-class="opacity-100 max-h-xl">
-                        <ul v-if="isOrdersMenuOpen"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900">
-                            <li
-                                class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
-                                <Link
-                                    :href="route('vendor.orders.index', { store_id: selectedStoreId, status: 'new' })">
-                                    {{ $t('messages.new_orders') }}</Link>
-                            </li>
-                            <li
-                                class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
-                                <Link :href="route('vendor.orders.index', { store_id: selectedStoreId })">{{
-                                    $t('messages.orders_history') }}</Link>
-                            </li>
-                        </ul>
-                    </transition>
+                        <span :class="$locale() === 'ar' ? 'mr-4' : 'ml-4'">{{ $t('messages.orders') }}</span>
+                    </Link>
+                </li>
+
+                <li class="relative px-6 py-3">
+                    <span v-if="route().current('vendor.settings.*')"
+                        class="absolute inset-y-0 w-1 bg-purple-600 rounded-tl-lg rounded-bl-lg"
+                        :class="$locale() === 'ar' ? 'right-0' : 'left-0'" aria-hidden="true"></span>
+                    <Link
+                        class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+                        :class="route().current('vendor.settings.*') ? 'text-gray-800 dark:text-gray-100' : ''"
+                        :href="route('vendor.settings.edit', { store_id: selectedStoreId })">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span :class="$locale() === 'ar' ? 'mr-4' : 'ml-4'">{{ $t('messages.settings') }}</span>
+                    </Link>
                 </li>
             </template>
         </ul>
@@ -142,7 +157,6 @@
 import { ref, onMounted, watch } from 'vue';
 import { router, Link, usePage } from '@inertiajs/vue3';
 
-const isOrdersMenuOpen = ref(false);
 const selectedStoreId = ref(null);
 
 watch(selectedStoreId, (newId) => {

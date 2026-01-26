@@ -33,7 +33,9 @@ class CartController extends Controller
         }
 
         $variant = null;
-        if (!empty($attributeValueIds)) {
+        if ($request->has('variant_id')) {
+            $variant = ProductVariant::find($request->variant_id);
+        } elseif (!empty($attributeValueIds)) {
             $variant = $this->matchVariant($productId, $attributeValueIds);
         } else {
             // Fallback to primary variant or first variant
@@ -72,7 +74,7 @@ class CartController extends Controller
                 'price' => $price,
                 'quantity' => $quantity,
                 'image' => $image,
-                'attributes' => $this->getAttributeNames($attributeValueIds),
+                'attributes' => $this->getAttributeNames($attributeValueIds, $variant),
             ];
         }
 
@@ -104,8 +106,14 @@ class CartController extends Controller
         return null;
     }
 
-    private function getAttributeNames(array $attributeValueIds)
+    private function getAttributeNames(array $attributeValueIds, $variant = null)
     {
+        if ($variant) {
+            return $variant->attributeValues->mapWithKeys(function ($val) {
+                return [$val->attribute->name => $val->value];
+            })->toArray();
+        }
+
         if (empty($attributeValueIds)) return [];
 
         return AttributeValue::with('attribute')

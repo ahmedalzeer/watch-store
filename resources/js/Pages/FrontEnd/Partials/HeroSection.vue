@@ -12,22 +12,21 @@
                             class="text-left rtl:text-right space-y-8 z-20 md:pl-12 rtl:md:pl-0 rtl:md:pr-12 opacity-0 transform translate-y-10 transition-all duration-1000 slide-content">
                             <div class="space-y-4">
                                 <span
-                                    class="text-[10px] md:text-xs font-bold uppercase tracking-[0.5em] text-blue-600 block transition-all delay-300">New
-                                    Arrival</span>
+                                    class="text-[10px] md:text-xs font-bold uppercase tracking-[0.5em] text-blue-600 block transition-all delay-300">{{ $t('messages.new_arrival') }}</span>
                                 <h1
                                     class="text-5xl md:text-8xl font-black text-gray-900 leading-[0.9] transition-all delay-500">
-                                    {{ banner.title }}
+                                    {{ banner.is_fallback ? $t('messages.' + banner.title) : banner.title }}
                                 </h1>
                             </div>
                             <p
                                 class="text-sm md:text-lg text-gray-400 max-w-lg leading-relaxed transition-all delay-700">
-                                {{ banner.description }}
+                                {{ banner.is_fallback ? $t('messages.' + banner.description) : banner.description }}
                             </p>
 
                             <div class="pt-6 transition-all delay-1000">
                                 <Link :href="banner.link || route('shop.index')"
                                     class="inline-block bg-black text-white px-10 py-4 text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition-all transform hover:-translate-y-1">
-                                    Shop Now
+                                    {{ $t('messages.shop_now') }}
                                 </Link>
                             </div>
                         </div>
@@ -66,22 +65,23 @@ const props = defineProps({
     banners: Array
 });
 
-// High Quality Placeholders following the theme
-const fallbackBanners = [
-    {
-        title: 'LUXURY WATCHES',
-        description: 'Discover our exclusive collection of premium timepieces that define elegance and precision.',
-        image_url: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1000&auto=format&fit=crop'
-    },
-    {
-        title: 'ELITE STYLE',
-        description: 'Explore the finest craftsmanship with our latest arrivals in premium watchmaking.',
-        image_url: 'https://images.unsplash.com/photo-1508685096489-7aac29a7dff7?q=80&w=1000&auto=format&fit=crop'
-    }
-];
-
 const displayBanners = computed(() => {
-    return props.banners && props.banners.length > 0 ? props.banners : fallbackBanners;
+    if (props.banners && props.banners.length > 0) return props.banners;
+
+    return [
+        {
+            title: 'luxury_watch_banner_title',
+            description: 'luxury_watch_banner_desc',
+            image_url: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1000&auto=format&fit=crop',
+            is_fallback: true
+        },
+        {
+            title: 'elite_style_banner_title',
+            description: 'elite_style_banner_desc',
+            image_url: 'https://images.unsplash.com/photo-1508685096489-7aac29a7dff7?q=80&w=1000&auto=format&fit=crop',
+            is_fallback: true
+        }
+    ];
 });
 
 const handleImageError = (e) => {

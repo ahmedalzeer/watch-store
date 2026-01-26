@@ -1,7 +1,16 @@
 <template>
     <ShopLayout>
 
-        <Head :title="currentStore?.name || 'Home'" />
+        <!-- SEO Head Component -->
+        <SeoHead
+            :seo-data="seoData"
+            :schema-data="schemaData"
+            :current-store="currentStore"
+            :primary-language="primaryLanguage"
+            :theme-color="themeColor"
+        />
+
+        <Head :title="currentStore?.name || $t('messages.home')" />
 
         <!-- Hero Section -->
         <HeroSection :banners="banners" />
@@ -13,11 +22,11 @@
         <section class="py-24 bg-white container mx-auto px-4" v-if="products.data?.length > 0">
             <div class="flex items-center justify-between mb-16">
                 <h2 class="text-4xl font-black text-gray-900 tracking-tight">
-                    Trending Now
+                    {{ $t('messages.trending_now') }}
                 </h2>
                 <Link :href="route('shop.index')"
                     class="text-xs font-bold uppercase tracking-widest border-b-2 border-black pb-1 hover:text-blue-600 hover:border-blue-600 transition-all">
-                    View All
+                    {{ $t('messages.view_all') }}
                 </Link>
             </div>
 
@@ -40,11 +49,11 @@
                     alt="Sale"
                     class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
                 <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-12">
-                    <span class="text-white font-bold uppercase tracking-[0.5em] text-xs mb-4">Limited Edition</span>
-                    <h2 class="text-5xl md:text-7xl font-black text-white mb-8">SUMMER SALE -40%</h2>
+                    <span class="text-white font-bold uppercase tracking-[0.5em] text-xs mb-4">{{ $t('messages.limited_edition') }}</span>
+                    <h2 class="text-5xl md:text-7xl font-black text-white mb-8">{{ $t('messages.summer_sale') }}</h2>
                     <Link :href="route('shop.index')"
                         class="bg-white text-black px-10 py-4 text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all transform hover:-translate-y-1">
-                        Get It Now
+                        {{ $t('messages.get_it_now') }}
                     </Link>
                 </div>
             </div>
@@ -53,8 +62,8 @@
         <!-- Featured Products (Grid) -->
         <section class="py-24 bg-white container mx-auto px-4" v-if="products.data?.length > 0">
             <div class="text-center mb-16 space-y-4">
-                <span class="text-blue-600 font-bold uppercase tracking-[0.3em] text-[10px]">Curated Collection</span>
-                <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Our Favorites</h1>
+                <span class="text-blue-600 font-bold uppercase tracking-[0.3em] text-[10px]">{{ $t('messages.curated_collection') }}</span>
+                <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">{{ $t('messages.our_favorites') }}</h1>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -65,7 +74,7 @@
             <div class="text-center mt-20">
                 <Link :href="route('shop.index')"
                     class="inline-block px-12 py-5 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 transform">
-                    Shop Collection
+                    {{ $t('messages.shop_collection') }}
                 </Link>
             </div>
         </section>
@@ -79,6 +88,7 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
+import SeoHead from '@/Components/SEO/SeoHead.vue';
 import HeroSection from '@/Pages/FrontEnd/Partials/HeroSection.vue';
 import CategorySlider from '@/Pages/FrontEnd/Partials/CategorySlider.vue';
 import FeaturesSection from '@/Pages/FrontEnd/Partials/FeaturesSection.vue';
@@ -93,7 +103,11 @@ defineProps({
     banners: Array,
     categories: Array,
     brands: Array,
-    currentStore: Object
+    currentStore: Object,
+    seoData: Object,
+    schemaData: Object,
+    primaryLanguage: String,
+    themeColor: String
 });
 
 const handleToggleWishlist = (product) => {

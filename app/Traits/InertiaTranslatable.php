@@ -14,9 +14,15 @@ trait InertiaTranslatable
     {
         $attributes = parent::toArray();
 
-        if (method_exists($this, 'getTranslatableAttributes')) {
-            foreach ($this->getTranslatableAttributes() as $field) {
-                $attributes[$field] = $this->getTranslation($field, app()->getLocale());
+        // For administrative areas, we want to see all translations (for editing)
+        if (request()->is('vendor/*') || request()->is('admin/*')) {
+            return $attributes;
+        }
+
+        if (isset($this->translatable) && is_array($this->translatable)) {
+            foreach ($this->translatable as $field) {
+                // Disable fallback to other locales to remain strict per-language
+                $attributes[$field] = $this->getTranslation($field, app()->getLocale(), false);
             }
         }
 

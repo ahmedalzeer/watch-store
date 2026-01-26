@@ -101,17 +101,7 @@
                 </table>
             </div>
             <div class="px-4 py-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                <div class="flex flex-wrap justify-center space-x-1 rtl:space-x-reverse">
-                    <template v-for="(link, key) in categories.links" :key="key">
-                        <Link v-if="link.url" :href="link.url"
-                            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded transition-colors"
-                            :class="link.active ? 'bg-purple-600 text-white' : 'bg-white dark:bg-gray-700 dark:text-gray-300 hover:bg-purple-50'"
-                            v-html="link.label" preserve-scroll preserve-state /> <span v-else
-                            class="px-3 py-1 text-sm text-gray-400 border border-gray-300 dark:border-gray-600 rounded cursor-not-allowed"
-                            v-html="link.label">
-                        </span>
-                    </template>
-                </div>
+                <Pagination :links="categories.links" />
             </div>
         </div>
 
@@ -123,11 +113,11 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { debounce } from 'lodash';
+import { Head, router } from '@inertiajs/vue3';
 import VendorLayout from '@/Layouts/VendorLayout.vue';
 import CategoryModal from './CategoryModal.vue';
 import CategoryShow from './CategoryShow.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { useAlert } from '@/useAlert';
 
 const props = defineProps({

@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /vendor
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Allow: /
+
+Sitemap: https://watchstore.com/sitemap.xml
+Crawl-delay: 1

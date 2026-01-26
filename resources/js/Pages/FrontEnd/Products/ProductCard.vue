@@ -10,7 +10,7 @@
             </span>
             <span v-if="product.is_new"
                 class="bg-blue-600 text-white text-[9px] font-bold px-2 py-1 uppercase tracking-widest rounded-full">
-                New
+                {{ $t('messages.new_badge') }}
             </span>
         </div>
 
@@ -22,7 +22,7 @@
             <!-- Actions Overlay -->
             <div
                 class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <button @click="$emit('add-to-cart', product)"
+                <button @click="handleQuickView(product)"
                     class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-900 shadow-xl hover:bg-black hover:text-white transition-all transform translate-y-8 group-hover:translate-y-0 delay-75">
                     <i class="fa fa-shopping-bag text-sm"></i>
                 </button>
@@ -36,7 +36,7 @@
         <!-- Content -->
         <div class="p-6 flex flex-col items-center text-center flex-grow space-y-3">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{{ product.category?.name ||
-                'Watch' }}</span>
+                $t('messages.watch_fallback') }}</span>
             <Link :href="route('products.show', product.slug)"
                 class="text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2">
                 {{ product.name }}
@@ -62,10 +62,15 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { quickSelectionStore } from '@/Stores/quickSelectionStore.js';
 
 defineProps({
     product: Object
 });
 
-defineEmits(['add-to-cart', 'toggle-wishlist']);
+defineEmits(['toggle-wishlist']);
+
+const handleQuickView = (product) => {
+    quickSelectionStore.open(product.slug);
+};
 </script>

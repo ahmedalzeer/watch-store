@@ -76,12 +76,22 @@
                         <div
                             class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/20 p-4 rounded-xl border dark:border-gray-700/50">
                             <div>
-                                <span class="text-xs font-bold text-gray-400 uppercase block mb-1">{{
-                                    $t('messages.price') }}</span>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="text-2xl font-bold text-purple-600">{{ product?.price }}</span>
-                                    <span v-if="product?.discount_price" class="text-sm text-gray-400 line-through">{{
-                                        product?.cost_price }}</span>
+                                <div class="flex flex-col">
+                                    <span
+                                        :class="{ 'text-red-500 line-through text-sm': product?.discount_price !== null }"
+                                        class="text-gray-400 uppercase block mb-1">
+                                        {{ $t('messages.price') }}
+                                    </span>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{
+                                            product?.price }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="product?.discount_price !== null" class="mt-2">
+                                    <span class="text-xs font-bold text-green-600 uppercase block mb-1">
+                                        {{ $t('messages.discount_price') }}
+                                    </span>
+                                    <span class="text-2xl font-bold text-green-600">{{ product?.discount_price }}</span>
                                 </div>
                             </div>
                             <div>
@@ -192,14 +202,14 @@
                                     $t('messages.main_menu') }}</span>
                                 <span :class="product?.main_menu ? 'text-green-600' : 'text-gray-400'"
                                     class="font-bold text-lg">{{ product?.main_menu ? $t('messages.yes') :
-                                    $t('messages.no') }}</span>
+                                        $t('messages.no') }}</span>
                             </div>
                             <div class="p-3 bg-gray-50 dark:bg-gray-700/20 rounded-lg text-center">
                                 <span class="block text-xs uppercase text-gray-400 font-bold mb-1">{{
                                     $t('messages.main_store') }}</span>
                                 <span :class="product?.main_store ? 'text-green-600' : 'text-gray-400'"
                                     class="font-bold text-lg">{{ product?.main_store ? $t('messages.yes') :
-                                    $t('messages.no') }}</span>
+                                        $t('messages.no') }}</span>
                             </div>
                             <div class="p-3 bg-gray-50 dark:bg-gray-700/20 rounded-lg text-center">
                                 <span class="block text-xs uppercase text-gray-400 font-bold mb-1">Created At</span>
@@ -209,7 +219,7 @@
                             <div class="p-3 bg-gray-50 dark:bg-gray-700/20 rounded-lg text-center">
                                 <span class="block text-xs uppercase text-gray-400 font-bold mb-1">Slug</span>
                                 <span class="text-xs font-mono text-purple-500 truncate block w-full">{{ product?.slug
-                                    }}</span>
+                                }}</span>
                             </div>
                         </div>
                     </div>

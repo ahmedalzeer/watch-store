@@ -46,7 +46,7 @@ class Product extends Model implements HasMedia
 
     protected $dates = ['deleted_at'];
 
-    protected $appends = ['main_image_url', 'image_url'];
+    protected $appends = ['main_image_url', 'image_url', 'has_variants', 'total_variant_stock', 'effective_stock'];
 
     public function store()
     {
@@ -78,6 +78,11 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductReview::class);
     }
 
+    public function orders()
+    {
+        return $this->hasManyThrough(Order::class, OrderItem::class, 'product_id', 'id', 'id', 'order_id');
+    }
+
     public function thumbnail()
     {
         return $this->morphOne(\Spatie\MediaLibrary\MediaCollections\Models\Media::class, 'model')
@@ -101,5 +106,74 @@ class Product extends Model implements HasMedia
     public function getImageUrlAttribute()
     {
         return $this->thumbnail ? $this->thumbnail->getFullUrl() : 'https://ui-avatars.com/api/?name=Product';
+    }
+
+    /**
+     * Check if product has variants
+     */
+    public function getHasVariantsAttribute(): bool
+    {
+        return $this->variants()->count() > 0;
+    }
+
+    /**
+     * Get total stock from all variants
+     */
+    public function getTotalVariantStockAttribute(): int
+    {
+        return $this->variants()->where('is_active', true)->sum('stock');
+    }
+
+    /**
+     * Get effective stock (from variants if exists, otherwise from product)
+     * هذا هو المخزون الفعلي المتاح للبيع
+     */
+    public function getEffectiveStockAttribute(): int
+    {
+        if ($this->has_variants) {
+            return $this->total_variant_stock;
+        }
+        return $this->stock ?? 0;
+    }
+
+    /**
+     * Get active variants with their attribute values
+     */
+    public function activeVariants()
+    {
+        return $this->hasMany(ProductVariant::class)->where('is_active', true);
+    }
+
+    /**
+     * Check if product is in stock
+     */
+    public function isInStock(): bool
+    {
+        return $this->effective_stock > 0;
+    }
+
+    /**
+     * Get available attributes for this product (from its variants)
+     */
+    public function getAvailableAttributesAttribute()
+    {
+        return $this->variants()
+            ->with('attributeValues.attribute')
+            ->get()
+            ->pluck('attributeValues')
+            ->flatten()
+            ->pluck('attribute')
+            ->unique('id')
+            ->values();
+    }
+
+    /**
+     * Sync stock from variants (call this after updating variants)
+     */
+    public function syncStockFromVariants(): void
+    {
+        if ($this->has_variants) {
+            $this->update(['stock' => $this->total_variant_stock]);
+        }
     }
 }

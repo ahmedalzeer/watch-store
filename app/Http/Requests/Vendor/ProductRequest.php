@@ -49,6 +49,30 @@ class ProductRequest extends FormRequest
             'specifications' => ['nullable', 'array'],
             'image_paths' => ['nullable', 'array'],
             'main_image_path' => ['nullable', 'string'],
+            'variants' => ['nullable', 'array'],
+            'variants.*.id' => ['nullable', 'exists:product_variants,id'],
+            'variants.*.sku' => ['nullable', 'string', 'max:255'],
+            'variants.*.price' => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.stock' => ['required_with:variants', 'integer', 'min:0'],
+            'variants.*.attribute_value_ids' => ['required_with:variants', 'array'],
+            'variants.*.attribute_value_ids.*' => ['exists:attribute_values,id'],
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->has('variants') && is_array($this->variants) && count($this->variants) > 0) {
+                $totalVariantStock = array_sum(array_column($this->variants, 'stock'));
+                $mainStock = (int) $this->stock;
+
+                if ($totalVariantStock > $mainStock) {
+                    $validator->errors()->add('variants', __('The sum of variant stocks (:total) cannot exceed the total product stock (:main).', [
+                        'total' => $totalVariantStock,
+                        'main' => $mainStock
+                    ]));
+                }
+            }
+        });
     }
 }

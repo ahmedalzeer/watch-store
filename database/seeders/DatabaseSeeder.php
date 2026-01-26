@@ -12,17 +12,15 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Usage:
+     * - Default seeding: php artisan db:seed
+     * - Full database restore: php artisan migrate:fresh --seed --seeder=MasterSeeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
-        $this->call(DefaultSeeder::class);
-        
+        // استخدم MasterSeeder لاستعادة كل البيانات
+        // Use MasterSeeder to restore all data
+        $this->call(MasterSeeder::class);
     }
 }

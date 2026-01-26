@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Store;
 use App\Services\Vendor\BannerService;
 use App\Http\Requests\Vendor\BannerRequest;
 use Illuminate\Http\Request;
@@ -19,29 +20,32 @@ class BannerController extends Controller
     }
 
     /**
-     * Get the current store ID from request or fallback to first store
+     * Verify that the vendor owns the store
      */
-    private function getStoreId(Request $request): int
+    private function authorizeStore(Store $store): void
     {
-        return $request->store_id ?? auth()->user()->stores()->first()->id;
-    }
-
-    /**
-     * Check if user owns the store
-     */
-    private function authorizeStore(int $storeId): void
-    {
-        if (!auth()->user()->stores()->where('id', $storeId)->exists()) {
-            abort(403);
+        if ($store->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
         }
     }
 
-    public function index(Request $request)
+    /**
+     * Verify that the banner belongs to the store
+     */
+    private function authorizeBanner(Banner $banner, Store $store): void
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        if ($banner->store_id !== $store->id) {
+            abort(404);
+        }
+    }
 
-        $banners = $this->bannerService->getAllBanners($storeId)->map(function ($banner) {
+    public function index(Request $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $paginatedBanners = $this->bannerService->paginate($store->id);
+
+        $banners = $paginatedBanners->getCollection()->map(function ($banner) {
             return [
                 'id' => $banner->id,
                 'title' => $banner->getTranslations('title'),
@@ -56,73 +60,98 @@ class BannerController extends Controller
         return Inertia::render('Vendor/Banners/Index', [
             'banners' => [
                 'data' => $banners,
-                'links' => [],
+                'links' => $paginatedBanners->linkCollection()->toArray(),
             ],
-            'storeId' => (int) $storeId,
+            'store' => $store,
         ]);
     }
 
-    public function store(BannerRequest $request)
+    public function create(Request $request, Store $store)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
 
-        $banner = $this->bannerService->store($storeId, $request->validated());
+        return Inertia::render('Vendor/Banners/Create', [
+            'store' => $store,
+        ]);
+    }
+
+    public function store(BannerRequest $request, Store $store)
+    {
+        $this->authorizeStore($store);
+
+        $banner = $this->bannerService->store($store->id, $request->validated());
 
         if ($request->image_path) {
             $this->handleMedia($banner, $request->image_path);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.banners.show', ['store' => $store, 'banner' => $banner]);
     }
 
-    public function update(BannerRequest $request, Banner $banner)
+    public function show(Request $request, Store $store, Banner $banner)
     {
-        $storeId = $this->getStoreId($request);
-        $this->authorizeStore($storeId);
+        $this->authorizeStore($store);
+        $this->authorizeBanner($banner, $store);
 
-        $this->bannerService->update($storeId, $banner, $request->validated());
+        return Inertia::render('Vendor/Banners/Show', [
+            'banner' => $banner,
+            'store' => $store,
+        ]);
+    }
+
+    public function edit(Request $request, Store $store, Banner $banner)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeBanner($banner, $store);
+
+        return Inertia::render('Vendor/Banners/Edit', [
+            'banner' => $banner,
+            'store' => $store,
+        ]);
+    }
+
+    public function update(BannerRequest $request, Store $store, Banner $banner)
+    {
+        $this->authorizeStore($store);
+        $this->authorizeBanner($banner, $store);
+
+        $this->bannerService->update($store->id, $banner, $request->validated());
 
         if ($request->filled('image_path')) {
             $banner->clearMediaCollection('banners');
             $this->handleMedia($banner, $request->image_path);
         }
 
-        return redirect()->back();
+        return redirect()->route('vendor.banners.show', ['store' => $store, 'banner' => $banner]);
     }
 
-    public function destroy(Banner $banner)
+    public function destroy(Request $request, Store $store, Banner $banner)
     {
-        $storeId = auth()->user()->stores()->where('id', $banner->store_id)->first()?->id;
+        $this->authorizeStore($store);
+        $this->authorizeBanner($banner, $store);
 
-        if (!$storeId) {
-            abort(403);
-        }
+        $this->bannerService->delete($store->id, $banner);
 
-        $this->bannerService->delete($storeId, $banner);
-
-        return redirect()->back();
+        return redirect()->route('vendor.banners.index', ['store' => $store]);
     }
 
-    public function updateStatus(Request $request)
+    public function updateStatus(Request $request, Store $store)
     {
+        $this->authorizeStore($store);
+
         $validated = $request->validate([
             'id' => 'required|exists:banners,id',
             'status' => 'required|boolean',
         ]);
 
         $banner = Banner::findOrFail($validated['id']);
-        $storeId = auth()->user()->stores()->where('id', $banner->store_id)->first()?->id;
+        $this->authorizeBanner($banner, $store);
 
-        if (!$storeId) {
-            abort(403);
-        }
-
-        $this->bannerService->toggleStatus($storeId, $banner, $validated['status']);
+        $this->bannerService->toggleStatus($store->id, $banner, $validated['status']);
 
         return response()->json([
             'success' => true,
-            'message' => __('messages.status_updated'),
+            'message' => 'Status updated',
         ]);
     }
 

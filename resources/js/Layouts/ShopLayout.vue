@@ -1,7 +1,6 @@
 <template>
-    <div :dir="$page.props.locale === 'ar' ? 'rtl' : 'ltr'"
+    <div :dir="$page.props.locale == 'ar' ? 'rtl' : 'ltr'"
         class="bg-white min-h-screen font-sans text-gray-800 flex flex-col">
-
         <!-- Row 1: Top Bar -->
         <div class="bg-gray-50 border-b border-gray-100 py-2">
             <div
@@ -57,7 +56,7 @@
         <!-- Row 3: Navigation (Links Right, Extras Left) -->
         <div class="border-b border-gray-50 py-4 bg-white sticky top-0 z-40">
             <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between">
+                <div :dir="$page.props.locale == 'ar' ? 'ltr' : 'rtl'" class="flex items-center justify-between">
                     <!-- Extras Left (Lang, Currency, Small Icons) -->
                     <div class="flex items-center gap-6">
                         <!-- Selectors -->
@@ -71,25 +70,34 @@
                                 <div
                                     class="absolute left-0 top-full mt-2 w-24 bg-white shadow-xl border border-gray-50 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                                     <button @click="changeCurrency('USD')"
-                                        class="block w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-black">USD</button>
+                                        class="block w-full ltr:text-left rtl:text-right px-4 py-2 hover:bg-gray-50 hover:text-black">USD</button>
                                     <button @click="changeCurrency('EUR')"
-                                        class="block w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-black">EUR</button>
+                                        class="block w-full ltr:text-left rtl:text-right px-4 py-2 hover:bg-gray-50 hover:text-black">EUR</button>
                                     <button @click="changeCurrency('SAR')"
-                                        class="block w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-black">SAR</button>
+                                        class="block w-full ltr:text-left rtl:text-right px-4 py-2 hover:bg-gray-50 hover:text-black">SAR</button>
                                 </div>
                             </div>
                             <span class="h-3 w-[1px] bg-gray-200"></span>
                             <div class="relative group">
-                                <button class="hover:text-black transition-colors flex items-center gap-1 uppercase">
-                                    {{ $page.props.locale }}
+                                <button class="hover:text-black transition-colors flex items-center gap-2 uppercase">
+                                    <span class="text-xs">{{ $page.props.locale === 'ar' ? 'العربية' : 'English'
+                                    }}</span>
                                     <i class="fas fa-chevron-down text-[8px]"></i>
                                 </button>
                                 <div
-                                    class="absolute left-0 top-full mt-2 w-24 bg-white shadow-xl border border-gray-50 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                                    class="absolute ltr:left-0 rtl:right-0 top-full mt-2 w-32 bg-white shadow-xl border border-gray-50 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[60]">
                                     <button @click="changeLanguage('en')"
-                                        class="block w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-black">EN</button>
+                                        class="flex items-center gap-2 w-full text-left ltr:text-left rtl:text-right px-4 py-2 hover:bg-gray-50 hover:text-black transition-colors">
+                                        <span class="text-xs">English</span>
+                                        <span v-if="$page.props.locale === 'en'" class="text-[8px] text-blue-600"><i
+                                                class="fas fa-check"></i></span>
+                                    </button>
                                     <button @click="changeLanguage('ar')"
-                                        class="block w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-black">AR</button>
+                                        class="flex items-center gap-2 w-full text-left ltr:text-left rtl:text-right px-4 py-2 hover:bg-gray-50 hover:text-black transition-colors">
+                                        <span class="text-xs">العربية</span>
+                                        <span v-if="$page.props.locale === 'ar'" class="text-[8px] text-blue-600"><i
+                                                class="fas fa-check"></i></span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -108,18 +116,18 @@
                                     <template v-if="!$page.props.auth.user">
                                         <Link :href="route('login')"
                                             class="block px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-800 hover:text-blue-600">
-                                            Login</Link>
+                                            {{ $t('messages.login') }}</Link>
                                         <Link :href="route('register')"
                                             class="block px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-800 hover:text-blue-600">
-                                            Register</Link>
+                                            {{ $t('messages.register') }}</Link>
                                     </template>
                                     <template v-else>
                                         <Link :href="route('dashboard')"
                                             class="block px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-800 hover:text-blue-600">
-                                            Dashboard</Link>
+                                            {{ $t('messages.dashboard') }}</Link>
                                         <Link :href="route('logout')" method="post" as="button"
-                                            class="block w-full text-left px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-800 hover:text-blue-600">
-                                            Logout</Link>
+                                            class="block w-full ltr:text-left rtl:text-right px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-800 hover:text-blue-600">
+                                            {{ $t('messages.logout') }}</Link>
                                     </template>
                                 </div>
                             </div>
@@ -133,7 +141,7 @@
                             <li>
                                 <Link :href="route('welcome')" class="hover:text-black transition-colors"
                                     :class="{ 'text-black': $page.component === 'FrontEnd/Welcome' }">{{
-                                    $t('app.nav.home') }}</Link>
+                                        $t('app.nav.home') }}</Link>
                             </li>
                             <li>
                                 <Link :href="route('shop.index')" class="hover:text-black transition-colors">{{
@@ -157,6 +165,12 @@
             </div>
         </div>
 
+        <!-- Sidebar Overlay (Mobile) -->
+        <div v-if="isSidebarOpen" class="fixed inset-0 bg-black/60 z-[60] lg:hidden backdrop-blur-sm"
+            @click="isSidebarOpen = false"></div>
+
+        <QuickSelectionModal />
+
         <!-- Main Content -->
         <main class="flex-grow">
             <slot />
@@ -168,10 +182,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { ref, onMounted } from 'vue';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import Navbar from '@/Pages/FrontEnd/Partials/Navbar.vue';
 import Footer from '@/Pages/FrontEnd/Partials/Footer.vue';
+import QuickSelectionModal from '@/Pages/FrontEnd/Partials/QuickSelectionModal.vue';
 
+const page = usePage();
 const searchQuery = ref('');
 
 const changeLanguage = (lang) => {

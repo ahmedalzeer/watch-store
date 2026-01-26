@@ -185,6 +185,9 @@
                     </div>
                 </div>
 
+                <VariantManager v-model="form.variants" :store-id="storeId" :base-price="form.price"
+                    :base-sku="form.sku" :product-stock="form.stock" />
+
                 <div class="mt-8 flex justify-end space-x-3 rtl:space-x-reverse border-t pt-6 dark:border-gray-700">
                     <button type="button" @click="$emit('close')" class="px-4 py-2 text-gray-500 hover:text-gray-700">
                         {{ $t('messages.cancel') }}
@@ -200,11 +203,12 @@
 </template>
 
 <script setup>
-import { useForm } from '@inertiajs/vue3'
-import { watch, computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useForm, usePage } from '@inertiajs/vue3'
 import Modal from '@/Components/Modal.vue'
 import Dropzone from '@/Components/Dropzone.vue'
 import InputError from '@/Components/InputError.vue'
+import VariantManager from './Partials/VariantManager.vue'
 
 const props = defineProps({
     show: Boolean,
@@ -226,7 +230,7 @@ const form = useForm({
     slug: '',
     sku: '',
     price: '',
-    discount_price: '',
+    discount_price: null,
     stock: 0,
     condition: 'new',
     is_active: true,
@@ -234,6 +238,7 @@ const form = useForm({
     main_store: true,
     image_paths: [],
     main_image_path: null,
+    variants: []
 })
 
 const handleUploadSuccess = (r) => {
@@ -246,13 +251,27 @@ const removeImage = (index) => {
     if (form.main_image_path === p) form.main_image_path = null
 }
 
+
 watch(() => props.show, (val) => {
     if (val && props.editProduct) {
         Object.assign(form, props.editProduct)
         form.name = { ...props.editProduct.name }
+        form.description = { ...props.editProduct.description }
+
+        if (props.editProduct.variants) {
+            form.variants = props.editProduct.variants.map(v => ({
+                id: v.id,
+                sku: v.sku,
+                price: v.price,
+                stock: v.stock,
+                attribute_value_ids: v.attribute_values.map(av => av.id),
+                valueNames: v.attribute_values.map(av => av.value[usePage().props.locale] || av.value.en)
+            }))
+        }
     } else if (val) {
         form.reset()
         form.store_id = props.storeId
+        form.variants = []
     }
 })
 
